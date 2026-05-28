@@ -4,7 +4,9 @@
   Внутрішній шар: max-w-[1440px] вирівнює контент з каталогом / Inner layer: max-w-[1440px] aligns with catalog.
 --}}
 {{-- Зовнішній шар шапки: повна ширина фону / Header outer layer: full-width background --}}
-<header class="w-full bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm font-sans antialiased overflow-x-hidden">
+{{-- overflow-x-hidden тут НЕ використовується — він обрізав би absolute dropdown мега-меню --}}
+{{-- overflow-x-hidden is NOT used here — it would clip the absolute mega-menu dropdown     --}}
+<header class="w-full bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm font-sans antialiased">
   {{-- Внутрішній шар: обмеження 1440px, адаптивні відступи / Inner layer: 1440px cap, responsive padding --}}
   <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
 
@@ -69,13 +71,30 @@
                 @foreach ($menu_tree as $top_id => $node)
                   @if(str_contains(mb_strtolower($node['item']->title), 'каталог'))
                     @foreach($node['children'] as $cat_id => $cat_node)
-                      <button class="mega-menu-tab-trigger w-full flex items-center justify-between text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors focus:outline-none"
-                              data-tab="tab-{{ $cat_id }}">
-                        <span>{{ $cat_node['item']->title }}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 opacity-50">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                        </svg>
-                      </button>
+
+                      {{-- Правильна структура: кнопка окремо керує видимістю таба, посилання відкриває сторінку --}}
+                      {{-- Correct structure: button manages tab visibility, link performs page navigation        --}}
+                      <div class="mega-menu-tab-item flex items-center justify-between rounded-lg hover:bg-blue-50 transition-colors"
+                           data-tab="tab-{{ $cat_id }}">
+
+                        {{-- Навігаційне посилання на сторінку категорії / Category page navigation link --}}
+                        <a href="{{ $cat_node['item']->url }}"
+                           class="flex-1 px-4 py-3 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                          {{ $cat_node['item']->title }}
+                        </a>
+
+                        {{-- Кнопка-перемикач: тільки показує підкатегорії праворуч, навігації немає --}}
+                        {{-- Tab-switch button: only reveals subcategories on the right, no navigation    --}}
+                        <button type="button"
+                                class="mega-menu-tab-trigger shrink-0 p-3 text-gray-400 hover:text-blue-600 transition-colors focus:outline-none"
+                                data-tab="tab-{{ $cat_id }}"
+                                aria-label="Показати підкатегорії">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                          </svg>
+                        </button>
+
+                      </div>{{-- /mega-menu-tab-item --}}
                     @endforeach
                   @endif
                 @endforeach
