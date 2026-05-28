@@ -1,9 +1,12 @@
 {{--
   Header: logo, catalog mega-menu (desktop only), nav links, cart, mobile drawer.
-  overflow-x-hidden на header запобігає горизонтальному скролу / prevents horizontal scroll.
+  Зовнішній шар: w-full (повна ширина екрану) / Outer layer: w-full (full screen width).
+  Внутрішній шар: max-w-[1440px] вирівнює контент з каталогом / Inner layer: max-w-[1440px] aligns with catalog.
 --}}
-<header class="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm font-sans antialiased overflow-x-hidden w-full">
-  <div class="container mx-auto px-4 h-16 sm:h-20 flex items-center justify-between max-w-full">
+{{-- Зовнішній шар шапки: повна ширина фону / Header outer layer: full-width background --}}
+<header class="w-full bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm font-sans antialiased overflow-x-hidden">
+  {{-- Внутрішній шар: обмеження 1440px, адаптивні відступи / Inner layer: 1440px cap, responsive padding --}}
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
 
     {{-- ================================================= --}}
     {{-- ЛІВА ЧАСТИНА: Логотип + Кнопка Каталогу           --}}

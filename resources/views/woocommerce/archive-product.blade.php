@@ -6,7 +6,11 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="container mx-auto px-4 py-8 font-sans antialiased">
+  {{-- Зовнішній шар: прозорий фон, повна ширина / Outer layer: transparent background, full width --}}
+  <div class="w-full font-sans antialiased">
+  {{-- Внутрішній шар: обмеження 1440px, адаптивні відступи / Inner layer: 1440px cap, responsive padding --}}
+  {{-- Лівий край логотипу в шапці збігається з лівим краєм сайдбару / Logo left edge aligns with sidebar left edge --}}
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     {{-- Головний заголовок каталогу / Main catalog heading --}}
     <header class="mb-6">
@@ -449,7 +453,8 @@
 
       </div>{{-- /col-span-1 lg:col-span-3 --}}
     </div>{{-- /grid grid-cols-1 lg:grid-cols-4 --}}
-  </div>{{-- /container --}}
+  </div>{{-- /max-w-[1440px] inner container --}}
+  </div>{{-- /w-full outer wrapper --}}
 
   {{-- ================================================================== --}}
   {{-- JavaScript: всі функції каталогу в одному блоці                    --}}
