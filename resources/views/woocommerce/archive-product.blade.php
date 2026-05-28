@@ -22,21 +22,55 @@
       {{-- ========================================== --}}
       <aside class="w-full lg:w-1/4 bg-white border border-gray-100 p-5 rounded-xl shadow-sm shrink-0 sticky top-24">
 
-        {{-- ІЗОЛЬОВАНА ФОРМА ДЛЯ ФІЛЬТРІВ БРЕНДІВ ТА ЦІН --}}
+        {{-- Мінімальний преміум-стиль скролбару для внутрішніх списків фільтрів --}}
+        {{-- Minimal premium scrollbar style for inner filter lists --}}
+        <style>
+          .filter-scroll::-webkit-scrollbar { width: 4px; }
+          .filter-scroll::-webkit-scrollbar-track { background: transparent; }
+          .filter-scroll::-webkit-scrollbar-thumb { background-color: #e5e7eb; border-radius: 9999px; }
+          .filter-scroll::-webkit-scrollbar-thumb:hover { background-color: #d1d5db; }
+        </style>
+
+        {{-- JS: відправка форми фільтрів + перемикач акордеону секцій --}}
+        {{-- JS: filter form submit + accordion section toggle --}}
         <script>
-        function shopFilterSubmit() {
+          function shopFilterSubmit() {
             var f = document.getElementById('shop-sidebar-filter-form');
             f.querySelectorAll('input[name=min_price],input[name=max_price]').forEach(function(el) {
-                if (el.value === '') el.disabled = true;
+              if (el.value === '') el.disabled = true;
             });
             f.submit();
-        }
+          }
+
+          /**
+           * Перемикає видимість контенту акордеону та повертає шеврон.
+           * Toggles accordion content visibility and rotates the chevron icon.
+           * @param {HTMLButtonElement} btn - кнопка-заголовок секції / section header button
+           */
+          function toggleFilterSection(btn) {
+            var content = btn.nextElementSibling;
+            var chevron = btn.querySelector('svg');
+            var isOpen  = content.classList.contains('max-h-[500px]');
+
+            if (isOpen) {
+              // Закриваємо секцію / Close the section
+              content.classList.remove('max-h-[500px]', 'opacity-100');
+              content.classList.add('max-h-0', 'opacity-0');
+              chevron.classList.remove('rotate-180');
+            } else {
+              // Відкриваємо секцію / Open the section
+              content.classList.remove('max-h-0', 'opacity-0');
+              content.classList.add('max-h-[500px]', 'opacity-100');
+              chevron.classList.add('rotate-180');
+            }
+          }
         </script>
 
         <form action="@php echo esc_url(get_permalink(wc_get_page_id('shop'))); @endphp" method="get" id="shop-sidebar-filter-form"
               onsubmit="this.querySelectorAll('input[name=min_price],input[name=max_price]').forEach(function(el){if(el.value==='')el.disabled=true})">
 
-          {{-- Зберігаємо поточний вигляд та сортування з URL, щоб не скидати їх при фільтрації цін/брендів --}}
+          {{-- Зберігаємо поточний вигляд та сортування, щоб не скидати їх при фільтрації --}}
+          {{-- Preserve current view and sorting params to avoid resetting on filter submit --}}
           @if(request()->get('view'))
             <input type="hidden" name="view" value="{{ esc_attr(request()->get('view')) }}">
           @endif
@@ -44,67 +78,240 @@
             <input type="hidden" name="orderby" value="{{ esc_attr(request()->get('orderby')) }}">
           @endif
 
-          <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-5">
+          {{-- Заголовок панелі з кнопкою скидання / Filter panel header with reset link --}}
+          <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-1">
             <h2 class="font-bold text-gray-900 text-base">Фільтри</h2>
-            <a href="@php echo esc_url(get_permalink(wc_get_page_id('shop'))); @endphp" class="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">Скинути всі</a>
+            <a href="@php echo esc_url(get_permalink(wc_get_page_id('shop'))); @endphp"
+               class="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+              Скинути всі
+            </a>
           </div>
 
-          {{-- Фільтр категорій (статичні посилання, поза формою) --}}
-          <div class="mb-6">
-            <h3 class="font-semibold text-sm text-gray-900 uppercase tracking-wider mb-3">Категорії</h3>
-            @php
-              $cats = get_terms(['taxonomy' => 'product_cat', 'hide_empty' => true, 'parent' => 0]);
-            @endphp
-            @if(!empty($cats) && !is_wp_error($cats))
-              <ul class="space-y-2 text-sm text-gray-600">
-                @foreach($cats as $cat)
-                  <li>
-                    <a href="{{ get_term_link($cat) }}" class="hover:text-blue-600 flex justify-between items-center transition-colors">
-                      <span>{{ $cat->name }}</span>
-                      <span class="text-xs text-gray-400">({{ $cat->count }})</span>
-                    </a>
-                  </li>
-                @endforeach
-              </ul>
-            @endif
-          </div>
+          {{-- ============================================================= --}}
+          {{-- Попереднє обчислення всіх даних фільтрів та станів акордеонів --}}
+          {{-- Pre-compute all filter data and initial accordion open states  --}}
+          {{-- ============================================================= --}}
+          @php
+            // Категорії / Categories
+            $cats = get_terms(['taxonomy' => 'product_cat', 'hide_empty' => true, 'parent' => 0]);
 
-          {{-- Фільтр за брендами --}}
-                    {{-- Фільтр за брендами (Динамічні чекбокси з префіксом f_brand) --}}
-          <div class="mb-6 border-t border-gray-50 pt-5">
-            <h3 class="font-semibold text-sm text-gray-900 uppercase tracking-wider mb-3">Бренд</h3>
-            @php
-              $brands = get_terms(['taxonomy' => 'product_brand', 'hide_empty' => true]);
-              $chosen_brands = request()->get('f_brand', []);
-              if(!is_array($chosen_brands)) { $chosen_brands = explode(',', $chosen_brands); }
-            @endphp
-            @if(!empty($brands) && !is_wp_error($brands))
-              <div class="space-y-2.5 max-h-48 overflow-y-auto pr-2">
-                @foreach($brands as $brand)
-                  @php $is_checked = in_array($brand->slug, $chosen_brands); @endphp
-                  <label class="flex items-center justify-between text-sm text-gray-600 cursor-pointer group">
-                    <div class="flex items-center gap-2.5">
-                      <input type="checkbox" name="f_brand[]" value="{{ $brand->slug }}" onchange="shopFilterSubmit()" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" {{ $is_checked ? 'checked' : '' }}>
-                      <span class="{{ $is_checked ? 'text-blue-600 font-semibold' : 'group-hover:text-gray-900' }} transition-colors">{{ $brand->name }}</span>
-                    </div>
-                    <span class="text-xs text-gray-400">({{ $brand->count }})</span>
-                  </label>
-                @endforeach
+            // Бренди / Brands
+            $brands        = get_terms(['taxonomy' => 'product_brand', 'hide_empty' => true]);
+            $chosen_brands = request()->get('f_brand', []);
+            if (!is_array($chosen_brands)) { $chosen_brands = explode(',', $chosen_brands); }
+
+            // Кольори / Colors
+            $color_terms   = get_terms(['taxonomy' => 'pa_color', 'hide_empty' => true]);
+            $chosen_colors = request()->get('f_color', []);
+            if (!is_array($chosen_colors)) { $chosen_colors = explode(',', $chosen_colors); }
+            // Мапа slug → HEX для поширених кольорів / Slug → HEX map for common colors
+            $color_map = [
+              'black'     => '#111111', 'white'     => '#f5f5f5',
+              'red'       => '#ef4444', 'blue'      => '#3b82f6',
+              'grey'      => '#9ca3af', 'gray'      => '#9ca3af',
+              'beige'     => '#e8d4b4', 'green'     => '#22c55e',
+              'yellow'    => '#eab308', 'pink'      => '#f472b6',
+              'orange'    => '#f97316', 'purple'    => '#a855f7',
+              'navy'      => '#1e3a5f', 'brown'     => '#92400e',
+              'gold'      => '#d97706', 'silver'    => '#cbd5e1',
+              'turquoise' => '#2dd4bf', 'violet'    => '#7c3aed',
+            ];
+            // Темні свотчі: галочка має бути білою / Dark swatches: checkmark must be white
+            $dark_swatches = ['black', 'navy', 'blue', 'purple', 'brown', 'violet'];
+
+            // Розміри / Sizes
+            $size_terms   = get_terms(['taxonomy' => 'pa_size', 'hide_empty' => true]);
+            $chosen_sizes = request()->get('f_size', []);
+            if (!is_array($chosen_sizes)) { $chosen_sizes = explode(',', $chosen_sizes); }
+
+            // Початковий стан кожного акордеону: відкрито якщо секція має активні фільтри
+            // Initial accordion state: open if the section has active/checked filters
+            $open_cats   = true; // Категорії завжди відкриті / Categories always open
+            $open_brands = !empty($chosen_brands);
+            $open_colors = !empty($chosen_colors);
+            $open_sizes  = !empty($chosen_sizes);
+            $open_price  = (bool)(request()->get('min_price') || request()->get('max_price'));
+          @endphp
+
+          {{-- ================================================================ --}}
+          {{-- Компонент фільтра з акордеоном та внутрішнім скролом             --}}
+          {{-- Filter component with accordion and internal scrollbar            --}}
+          {{-- ================================================================ --}}
+
+          {{-- === 1. КАТЕГОРІЇ / CATEGORIES === --}}
+          @if(!empty($cats) && !is_wp_error($cats))
+            <div class="filter-section border-b border-gray-100">
+              <button type="button"
+                      class="flex w-full items-center justify-between py-4 text-sm font-semibold uppercase tracking-wide text-gray-900 hover:text-gray-700 transition-colors"
+                      onclick="toggleFilterSection(this)">
+                <span>Категорії</span>
+                <svg class="h-4 w-4 shrink-0 transform transition-transform duration-200 {{ $open_cats ? 'rotate-180' : '' }}"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              {{-- Контейнер зі скролом: макс висота 12rem (48), прихований горизонтальний скрол --}}
+              {{-- Scrollable container: max height 12rem (48), hidden horizontal scroll --}}
+              <div class="filter-content overflow-hidden transition-all duration-200 {{ $open_cats ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0' }}">
+                <ul class="filter-scroll max-h-48 overflow-y-auto space-y-2 text-sm text-gray-600 pb-4 pr-1">
+                  @foreach($cats as $cat)
+                    <li>
+                      <a href="{{ get_term_link($cat) }}"
+                         class="flex justify-between items-center hover:text-blue-600 transition-colors">
+                        <span>{{ $cat->name }}</span>
+                        <span class="text-xs text-gray-400">({{ $cat->count }})</span>
+                      </a>
+                    </li>
+                  @endforeach
+                </ul>
               </div>
-            @endif
-          </div>
-
-          {{-- Фільтр цін --}}
-          <div class="border-t border-gray-50 pt-5">
-            <h3 class="font-semibold text-sm text-gray-900 uppercase tracking-wider mb-3">Ціна, ₴</h3>
-            <div class="flex items-center gap-2 mb-3">
-              <input type="number" name="min_price" value="{{ request()->get('min_price') }}" placeholder="Від" class="w-1/2 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500">
-              <span class="text-gray-300">-</span>
-              <input type="number" name="max_price" value="{{ request()->get('max_price') }}" placeholder="До" class="w-1/2 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500">
             </div>
-            <button type="submit" class="w-full bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold py-2 rounded-lg transition-colors uppercase tracking-wider">
-              Застосувати ціну
+          @endif
+
+          {{-- === 2. БРЕНДИ / BRANDS === --}}
+          {{-- Динамічні чекбокси з префіксом f_brand / Dynamic checkboxes with f_brand prefix --}}
+          @if(!empty($brands) && !is_wp_error($brands))
+            <div class="filter-section border-b border-gray-100">
+              <button type="button"
+                      class="flex w-full items-center justify-between py-4 text-sm font-semibold uppercase tracking-wide text-gray-900 hover:text-gray-700 transition-colors"
+                      onclick="toggleFilterSection(this)">
+                <span>Бренд</span>
+                <svg class="h-4 w-4 shrink-0 transform transition-transform duration-200 {{ $open_brands ? 'rotate-180' : '' }}"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              {{-- Контейнер зі скролом / Scrollable container --}}
+              <div class="filter-content overflow-hidden transition-all duration-200 {{ $open_brands ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0' }}">
+                <div class="filter-scroll max-h-48 overflow-y-auto space-y-2.5 pb-4 pr-1">
+                  @foreach($brands as $brand)
+                    @php $is_checked = in_array($brand->slug, $chosen_brands); @endphp
+                    <label class="flex items-center justify-between text-sm text-gray-600 cursor-pointer group">
+                      <div class="flex items-center gap-2.5">
+                        <input type="checkbox" name="f_brand[]" value="{{ $brand->slug }}"
+                               onchange="shopFilterSubmit()"
+                               class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                               {{ $is_checked ? 'checked' : '' }}>
+                        <span class="{{ $is_checked ? 'text-blue-600 font-semibold' : 'group-hover:text-gray-900' }} transition-colors">
+                          {{ $brand->name }}
+                        </span>
+                      </div>
+                      <span class="text-xs text-gray-400">({{ $brand->count }})</span>
+                    </label>
+                  @endforeach
+                </div>
+              </div>
+            </div>
+          @endif
+
+          {{-- === 3. КОЛЬОРИ / COLORS (color swatches) === --}}
+          @if(!empty($color_terms) && !is_wp_error($color_terms))
+            <div class="filter-section border-b border-gray-100">
+              <button type="button"
+                      class="flex w-full items-center justify-between py-4 text-sm font-semibold uppercase tracking-wide text-gray-900 hover:text-gray-700 transition-colors"
+                      onclick="toggleFilterSection(this)">
+                <span>Колір</span>
+                <svg class="h-4 w-4 shrink-0 transform transition-transform duration-200 {{ $open_colors ? 'rotate-180' : '' }}"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              {{-- Без скролу: кольорові кружечки у flex-гриді / No scroll: color swatches in flex grid --}}
+              <div class="filter-content overflow-hidden transition-all duration-200 {{ $open_colors ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0' }}">
+                <div class="flex flex-wrap gap-2.5 pb-4">
+                  @foreach($color_terms as $ct)
+                    @php
+                      $cslug     = $ct->slug;
+                      $chex      = $color_map[$cslug] ?? '#d1d5db';
+                      $cactive   = in_array($cslug, $chosen_colors);
+                      $check_cls = in_array($cslug, $dark_swatches) ? 'text-white' : 'text-gray-800';
+                    @endphp
+                    <label for="color-{{ $cslug }}" title="{{ esc_attr($ct->name) }}"
+                           class="relative cursor-pointer group shrink-0">
+                      <input type="checkbox" id="color-{{ $cslug }}" name="f_color[]"
+                             value="{{ $cslug }}" class="sr-only"
+                             {{ $cactive ? 'checked' : '' }} onchange="shopFilterSubmit()">
+                      <span class="block w-8 h-8 rounded-full border border-gray-200 transition-all duration-150 group-hover:scale-110 {{ $cactive ? 'ring-2 ring-offset-2 ring-gray-700 scale-110' : '' }}"
+                            style="background-color: {{ $chex }};"></span>
+                      @if($cactive)
+                        <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <svg class="w-3.5 h-3.5 {{ $check_cls }}" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                          </svg>
+                        </span>
+                      @endif
+                    </label>
+                  @endforeach
+                </div>
+              </div>
+            </div>
+          @endif
+
+          {{-- === 4. РОЗМІРИ / SIZES (size badges) === --}}
+          @if(!empty($size_terms) && !is_wp_error($size_terms))
+            <div class="filter-section border-b border-gray-100">
+              <button type="button"
+                      class="flex w-full items-center justify-between py-4 text-sm font-semibold uppercase tracking-wide text-gray-900 hover:text-gray-700 transition-colors"
+                      onclick="toggleFilterSection(this)">
+                <span>Розмір</span>
+                <svg class="h-4 w-4 shrink-0 transform transition-transform duration-200 {{ $open_sizes ? 'rotate-180' : '' }}"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              {{-- Без скролу: значки розмірів у flex-гриді / No scroll: size badges in flex grid --}}
+              <div class="filter-content overflow-hidden transition-all duration-200 {{ $open_sizes ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0' }}">
+                <div class="flex flex-wrap gap-2 pb-4">
+                  @foreach($size_terms as $st)
+                    @php
+                      $sslug   = $st->slug;
+                      $sactive = in_array($sslug, $chosen_sizes);
+                    @endphp
+                    <label for="size-{{ $sslug }}" title="{{ esc_attr($st->name) }}" class="cursor-pointer">
+                      <input type="checkbox" id="size-{{ $sslug }}" name="f_size[]"
+                             value="{{ $sslug }}" class="sr-only"
+                             {{ $sactive ? 'checked' : '' }} onchange="shopFilterSubmit()">
+                      <span class="flex items-center justify-center min-w-[2.5rem] h-10 px-2 rounded-lg text-xs font-bold uppercase border transition-all duration-150 select-none
+                        {{ $sactive
+                          ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:text-gray-900' }}">
+                        {{ $st->name }}
+                      </span>
+                    </label>
+                  @endforeach
+                </div>
+              </div>
+            </div>
+          @endif
+
+          {{-- === 5. ЦІНА / PRICE === --}}
+          <div class="filter-section">
+            <button type="button"
+                    class="flex w-full items-center justify-between py-4 text-sm font-semibold uppercase tracking-wide text-gray-900 hover:text-gray-700 transition-colors"
+                    onclick="toggleFilterSection(this)">
+              <span>Ціна, ₴</span>
+              <svg class="h-4 w-4 shrink-0 transform transition-transform duration-200 {{ $open_price ? 'rotate-180' : '' }}"
+                   fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
             </button>
+            <div class="filter-content overflow-hidden transition-all duration-200 {{ $open_price ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0' }}">
+              <div class="pb-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <input type="number" name="min_price" value="{{ request()->get('min_price') }}"
+                         placeholder="Від"
+                         class="w-1/2 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500">
+                  <span class="text-gray-300">-</span>
+                  <input type="number" name="max_price" value="{{ request()->get('max_price') }}"
+                         placeholder="До"
+                         class="w-1/2 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500">
+                </div>
+                <button type="submit"
+                        class="w-full bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold py-2 rounded-lg transition-colors uppercase tracking-wider">
+                  Застосувати ціну
+                </button>
+              </div>
+            </div>
           </div>
 
         </form>
