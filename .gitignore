@@ -1,0 +1,9 @@
+/node_modules
+/vendor
+/cache
+/public/build
+.env
+.env.local
+.DS_Store
+!/public/.gitkeep
+npm-debug.log
