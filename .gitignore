@@ -2,6 +2,7 @@
 /vendor
 /cache
 /public/build
+/public/hot
 .env
 .env.local
 .DS_Store
