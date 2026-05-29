@@ -194,18 +194,28 @@ add_action('widgets_init', function () {
 add_filter('woocommerce_enqueue_styles', '__return_empty_array');
 
 /**
- * Примусово змушуємо WordPress використовувати наш Blade шаблон для всіх сторінок екомерсу.
- * Force WordPress to use our Blade template for all e-commerce views.
+ * Примусово змушуємо WordPress використовувати наші Blade шаблони для всіх сторінок екомерсу.
+ * Force WordPress to use our Blade templates for all e-commerce views.
  */
 add_filter('template_include', function ($template) {
     if (is_shop() || is_product_category() || is_product_tag() || is_tax('product_brand')) {
-        // Шукаємо наш кастомний Blade шаблон каталогу
+        // Шукаємо кастомний Blade шаблон каталогу
         // Search for our custom Blade archive template
         $blade_shop = locate_template('resources/views/woocommerce/archive-product.blade.php');
         if ($blade_shop) {
             return $blade_shop;
         }
     }
+
+    if (is_product()) {
+        // Шукаємо кастомний Blade шаблон картки товару
+        // Search for our custom Blade single product template
+        $blade_single = locate_template('resources/views/woocommerce/single-product.blade.php');
+        if ($blade_single) {
+            return $blade_single;
+        }
+    }
+
     return $template;
 }, 99);
 
