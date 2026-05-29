@@ -2,3 +2,459 @@
 @source "../../app/**/*.php";
 @source "../**/*.blade.php";
 @source "../**/*.js";
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WooCommerce — Кастомні стилі компонентів під Tailwind v4
+   WooCommerce — Custom component styles aligned with Tailwind v4 design system
+   WC CSS повністю вимкнений через __return_empty_array, тому всі стилі тут.
+   WC CSS is fully disabled via __return_empty_array, so all styles live here.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+
+  /* ── 1. Price Block / Блок ціни ───────────────────────────────────────── */
+  /* Нормалізуємо HTML WC-ціни під наш дизайн text-3xl font-extrabold       */
+  /* Normalize WC-generated price HTML to match our text-3xl font-extrabold */
+
+  .price-block .price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+    line-height: 1;
+  }
+
+  /* Звичайна ціна / Regular price */
+  .price-block .price > .woocommerce-Price-amount,
+  .price-block .price ins .woocommerce-Price-amount {
+    font-size: 1.875rem;   /* text-3xl */
+    font-weight: 800;      /* font-extrabold */
+    color: #111827;        /* gray-900 */
+    line-height: 1.1;
+  }
+
+  /* Стара ціна (закреслена) / Original price with strikethrough */
+  .price-block .price del .woocommerce-Price-amount {
+    font-size: 1.125rem;   /* text-lg */
+    font-weight: 400;
+    color: #9ca3af;        /* gray-400 */
+  }
+
+  /* Прибираємо підкреслення з <ins> / Remove underline from <ins> */
+  .price-block .price ins {
+    text-decoration: none;
+  }
+
+  /* ── 2. Variations Form: table → flex ─────────────────────────────────── */
+  /* Замінюємо застарілу <table> на flex-колонку                            */
+  /* Replace legacy <table> layout with clean flex column                   */
+
+  .variations_form .variations {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    border: none;
+    width: 100%;
+  }
+
+  .variations_form .variations tbody,
+  .variations_form .variations tr {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: 100%;
+  }
+
+  /* Підпис атрибуту / Attribute label */
+  .variations_form .variations .label label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7280; /* gray-500 */
+  }
+
+  /* Область значень (swatches або select) / Values area */
+  .variations_form .variations .value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Стилізований native select (fallback, коли JS swatch ще не завантажено) */
+  /* Styled native select (fallback when swatch JS is not yet loaded)        */
+  .variations_form .variations select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #fff;
+    border: 1.5px solid #e5e7eb; /* border-gray-200 */
+    border-radius: 0.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.625rem center;
+    background-size: 1.125rem;
+    min-width: 9rem;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .variations_form .variations select:hover {
+    border-color: #9ca3af; /* gray-400 */
+  }
+
+  .variations_form .variations select:focus {
+    outline: none;
+    border-color: #1d4ed8; /* blue-700 */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+  }
+
+  /* "Скинути" посилання / Reset variations link */
+  .variations_form .reset_variations {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.1s ease;
+  }
+
+  .variations_form .reset_variations:hover {
+    color: #1d4ed8;
+  }
+
+  /* ── 3. Swatch Buttons (JS-generated) / Кнопки-свотчі (генеруються JS) ─ */
+
+  /* Обгортка групи swatches / Swatch group wrapper */
+  .wc-swatch-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  /* Кругла кнопка кольору / Circular color swatch button */
+  .wc-color-swatch {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.08), 0 0 0 1.5px #e5e7eb;
+  }
+
+  .wc-color-swatch:hover {
+    transform: scale(1.12);
+    box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.14), 0 0 0 2px #374151;
+  }
+
+  /* Подвійне кільце при виборі / Double-ring on active */
+  .wc-color-swatch.is-active {
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1), 0 0 0 3px #fff, 0 0 0 5px #1d4ed8;
+    transform: scale(1.05);
+  }
+
+  /* Квадратна кнопка розміру / Square size badge button */
+  .wc-size-swatch {
+    min-width: 2.375rem;
+    height: 2.375rem;
+    padding: 0 0.5rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 0.4rem;
+    background: #fff;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    color: #374151;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s ease;
+  }
+
+  .wc-size-swatch:hover {
+    border-color: #374151;
+    background: #f9fafb;
+    color: #111827;
+  }
+
+  .wc-size-swatch.is-active {
+    background: #111827;
+    border-color: #111827;
+    color: #fff;
+  }
+
+  /* Недоступні варіації / Unavailable variation state */
+  .wc-color-swatch:disabled,
+  .wc-size-swatch:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* ── 4. Quantity + Add-to-Cart row / Рядок qty + кнопка в кошик ────────── */
+
+  .product-actions-form .woocommerce-variation-add-to-cart,
+  .product-actions-form .cart:not(.variations_form) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+  }
+
+  /* Лічильник кількості / Quantity stepper */
+  .product-actions-form .quantity {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 0.625rem;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .product-actions-form input.qty {
+    border: none;
+    width: 3rem;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    background: transparent;
+    padding: 0.625rem 0;
+    -moz-appearance: textfield;
+  }
+
+  .product-actions-form input.qty::-webkit-inner-spin-button,
+  .product-actions-form input.qty::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .product-actions-form input.qty:focus {
+    outline: none;
+  }
+
+  /* Кнопка "Додати в кошик" / Add to cart primary button */
+  .product-actions-form .single_add_to_cart_button {
+    flex: 1;
+    min-width: 10rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: #1d4ed8; /* blue-700 */
+    color: #fff;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.12s ease, transform 0.1s ease;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  .product-actions-form .single_add_to_cart_button:hover {
+    background-color: #1e40af; /* blue-800 */
+  }
+
+  .product-actions-form .single_add_to_cart_button:active {
+    transform: scale(0.98);
+  }
+
+  .product-actions-form .single_add_to_cart_button.loading {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+  .product-actions-form .single_add_to_cart_button.added {
+    background-color: #15803d; /* green-700 */
+  }
+
+  /* ── 5. Product Tabs → Clean Accordion ─────────────────────────────────── */
+  /* Перетворюємо legacy WC-таби на акордеон-секції                          */
+  /* Convert legacy WC tabs into clean stacked accordion sections             */
+
+  .woocommerce-tabs {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  /* Ховаємо застарілий <ul> список табів / Hide legacy <ul> tab nav */
+  .woocommerce-tabs .wc-tabs {
+    display: none !important;
+  }
+
+  /* Всі панелі завжди видимі (перебиваємо inline style="display:none" від WC) */
+  /* All panels always visible (overrides WC's inline style="display:none")   */
+  .woocommerce-tabs .woocommerce-Tabs-panel {
+    display: block !important;
+    border: 1.5px solid #f3f4f6; /* gray-100 */
+    border-radius: 0.875rem;
+    overflow: hidden;
+  }
+
+  /* Заголовок панелі = кнопка акордеону / Panel heading = accordion toggle */
+  .woocommerce-tabs .woocommerce-Tabs-panel > h2 {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #374151; /* gray-700 */
+    margin: 0;
+    padding: 1rem 1.25rem;
+    background: #f9fafb; /* gray-50 */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    user-select: none;
+    transition: background-color 0.1s ease, color 0.1s ease;
+    border-bottom: 1.5px solid transparent;
+  }
+
+  .woocommerce-tabs .woocommerce-Tabs-panel > h2:hover {
+    background: #f3f4f6; /* gray-100 */
+  }
+
+  /* Відкрита секція / Open section highlight */
+  .woocommerce-tabs .woocommerce-Tabs-panel.wc-panel--open > h2 {
+    background: #eff6ff; /* blue-50 */
+    color: #1d4ed8;      /* blue-700 */
+    border-bottom-color: #dbeafe; /* blue-100 */
+  }
+
+  /* Стрілка-шеврон через ::after / Chevron via ::after */
+  .woocommerce-tabs .woocommerce-Tabs-panel > h2::after {
+    content: '';
+    display: block;
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.5' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: transform 0.2s ease;
+  }
+
+  .woocommerce-tabs .woocommerce-Tabs-panel.wc-panel--open > h2::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.5' stroke='%231d4ed8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
+    transform: rotate(180deg);
+  }
+
+  /* Тіло панелі (обгортка, додана JS) / Panel body wrapper (added by JS) */
+  .woocommerce-tabs .wc-panel-body {
+    display: none;
+    padding: 1.25rem;
+  }
+
+  .woocommerce-tabs .woocommerce-Tabs-panel.wc-panel--open .wc-panel-body {
+    display: block;
+  }
+
+  /* Проза опису / Description prose */
+  .woocommerce-tabs .woocommerce-Tabs-panel--description .wc-panel-body {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: #374151; /* gray-700 */
+  }
+
+  .woocommerce-tabs .woocommerce-Tabs-panel--description .wc-panel-body p + p {
+    margin-top: 0.75rem;
+  }
+
+  /* Таблиця атрибутів / Attributes table */
+  .woocommerce-product-attributes {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .woocommerce-product-attributes tr {
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .woocommerce-product-attributes tr:last-child {
+    border-bottom: none;
+  }
+
+  .woocommerce-product-attributes .woocommerce-product-attributes-item__label {
+    width: 38%;
+    padding: 0.625rem 0.75rem 0.625rem 0;
+    font-weight: 600;
+    color: #374151;
+    vertical-align: top;
+  }
+
+  .woocommerce-product-attributes .woocommerce-product-attributes-item__value {
+    padding: 0.625rem 0;
+    color: #6b7280; /* gray-500 */
+  }
+
+  .woocommerce-product-attributes .woocommerce-product-attributes-item__value p {
+    margin: 0;
+  }
+
+  /* Форма відгуків / Reviews form */
+  .woocommerce-tabs #review_form .comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .woocommerce-tabs #review_form input[type="text"],
+  .woocommerce-tabs #review_form input[type="email"],
+  .woocommerce-tabs #review_form textarea {
+    width: 100%;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.5625rem 0.875rem;
+    font-size: 0.875rem;
+    color: #111827;
+    background: #fff;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .woocommerce-tabs #review_form input:focus,
+  .woocommerce-tabs #review_form textarea:focus {
+    outline: none;
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  .woocommerce-tabs #review_form .form-submit #submit {
+    background-color: #1d4ed8;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.12s ease;
+  }
+
+  .woocommerce-tabs #review_form .form-submit #submit:hover {
+    background-color: #1e40af;
+  }
+
+  /* Зірки рейтингу / Star rating widget */
+  .woocommerce-tabs .comment-form-rating .stars a {
+    color: #facc15; /* yellow-400 */
+    text-decoration: none;
+    font-size: 1.25rem;
+  }
+
+}
