@@ -458,3 +458,356 @@
   }
 
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WooCommerce Single Product — Extended Styles
+   Розширені стилі сторінки товару: галерея, qty, зірки, схожі товари
+   Extended single product styles: gallery, qty, SVG stars, related products
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+
+  /* ── 6. Product Gallery / Галерея товару ─────────────────────────────── */
+  /* Обгортка лівої колонки / Left column wrapper */
+  .product-gallery-column {
+    position: relative;
+  }
+
+  /* Flexslider viewport (головне зображення) / Flexslider main image viewport */
+  .woocommerce-product-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .woocommerce-product-gallery .flex-viewport {
+    border-radius: 1.25rem; /* rounded-2xl */
+    overflow: hidden;
+    background-color: #f9fafb; /* gray-50 */
+    border: 1.5px solid #f3f4f6;
+  }
+
+  /* Головне зображення товару / Main product image */
+  .woocommerce-product-gallery .woocommerce-product-gallery__image img,
+  .woocommerce-product-gallery .flex-viewport img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 1.25rem;
+    object-fit: contain;
+    aspect-ratio: 1 / 1;
+    background-color: #f9fafb;
+  }
+
+  /* Гарантуємо правильний аспект якщо немає Flexslider / Ensure correct aspect without Flexslider */
+  .woocommerce-product-gallery .woocommerce-product-gallery__image:first-child > a > img {
+    border-radius: 1.25rem;
+  }
+
+  /* Іконка зум / Zoom trigger icon */
+  .woocommerce-product-gallery__trigger {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 0.625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: background-color 0.12s ease;
+  }
+
+  .woocommerce-product-gallery__trigger:hover {
+    background: #fff;
+  }
+
+  /* Зображення у кнопці зум (іконка) / Zoom trigger inner img */
+  .woocommerce-product-gallery__trigger > img {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    aspect-ratio: auto !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: none !important;
+    object-fit: contain !important;
+  }
+
+  /* ── Горизонтальний ряд мініатюр / Horizontal thumbnail strip ──────── */
+  .woocommerce-product-gallery .flex-control-thumbs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .woocommerce-product-gallery .flex-control-thumbs li {
+    flex: 0 0 calc(25% - 0.375rem);
+    max-width: calc(25% - 0.375rem);
+  }
+
+  .woocommerce-product-gallery .flex-control-thumbs img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 0.75rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+    background-color: #f9fafb;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .woocommerce-product-gallery .flex-control-thumbs img:hover {
+    border-color: #9ca3af; /* gray-400 */
+  }
+
+  /* Активна мініатюра / Active thumbnail */
+  .woocommerce-product-gallery .flex-control-thumbs .flex-active {
+    border-color: #1d4ed8 !important; /* blue-700 */
+    box-shadow: 0 0 0 1px #1d4ed8;
+  }
+
+  /* ── 7. Qty ± Stepper Buttons / Кнопки плюс-мінус кількості ─────────── */
+  /* Додаються через JS: initQtyButtons()                                   */
+  /* Injected by JS: initQtyButtons()                                       */
+
+  .qty-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    flex-shrink: 0;
+    color: #374151; /* gray-700 */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.1s ease, background-color 0.1s ease;
+  }
+
+  .qty-btn:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #111827;
+  }
+
+  .qty-btn--minus {
+    border-right: 1px solid #f3f4f6;
+  }
+
+  .qty-btn--plus {
+    border-left: 1px solid #f3f4f6;
+  }
+
+  /* ── 8. SVG Stars in Review Form / SVG-зірки у формі відгуків ──────── */
+  /* JS додає клас .wc-svg-stars та замінює текст посилань на SVG          */
+  /* JS adds .wc-svg-stars class and replaces link text with SVG icons     */
+
+  .wc-svg-stars {
+    display: inline-flex;
+    gap: 0.125rem;
+    line-height: 1;
+  }
+
+  /* Зірки: сірі за замовчуванням / Stars: gray by default */
+  .wc-svg-stars a {
+    color: #d1d5db; /* gray-300 */
+    transition: color 0.1s ease;
+    text-decoration: none;
+    display: inline-flex;
+  }
+
+  /* Ефект hover: золоті зірки до поточної / Hover: golden stars up to cursor */
+  .wc-svg-stars:hover a {
+    color: #facc15; /* yellow-400 */
+  }
+
+  .wc-svg-stars a:hover ~ a {
+    color: #d1d5db; /* gray-300 — зірки після курсора / stars after cursor */
+  }
+
+  /* Вибрана зірка (WC додає .active) / Selected star (WC adds .active) */
+  .wc-svg-stars a.active,
+  .stars.selected a.active {
+    color: #facc15;
+  }
+
+  /* ── 9. Short Description typography / Типографіка короткого опису ─── */
+  .product-short-desc {
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: #4b5563; /* gray-600 */
+  }
+
+  .product-short-desc p { margin-bottom: 0.625rem; }
+  .product-short-desc p:last-child { margin-bottom: 0; }
+
+  .product-short-desc ul,
+  .product-short-desc ol {
+    padding-left: 1.25rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .product-short-desc li { margin-bottom: 0.25rem; }
+
+  .product-short-desc strong { font-weight: 700; color: #111827; }
+
+  /* ── 10. Related & Upsell Products Grid / Сітка схожих + апсейл ────── */
+
+  /* Заголовок розділу / Section heading */
+  .related.products > h2,
+  .upsells.products > h2 {
+    font-size: 1.375rem;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    padding-top: 2rem;
+  }
+
+  /* Перебиваємо WC-list на CSS grid / Override WC's <ul> float to CSS grid */
+  .related.products ul.products,
+  .upsells.products ul.products {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  @media (min-width: 768px) {
+    .related.products ul.products,
+    .upsells.products ul.products {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .related.products ul.products,
+    .upsells.products ul.products {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Картка товару / Product card */
+  .related.products ul.products li.product,
+  .upsells.products ul.products li.product {
+    background: #fff;
+    border: 1.5px solid #f3f4f6;
+    border-radius: 1rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    width: auto !important; /* Скасовуємо WC-inline ширину / Cancel WC's inline width */
+    float: none !important;
+    margin: 0 !important;
+  }
+
+  .related.products ul.products li.product:hover,
+  .upsells.products ul.products li.product:hover {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.09);
+    border-color: #e5e7eb;
+  }
+
+  /* Зображення картки / Card image */
+  .related.products ul.products li.product img,
+  .upsells.products ul.products li.product img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    background-color: #f9fafb;
+    display: block;
+    transition: transform 0.2s ease;
+  }
+
+  .related.products ul.products li.product:hover img,
+  .upsells.products ul.products li.product:hover img {
+    transform: scale(1.04);
+  }
+
+  /* Посилання-обгортка / Link wrapper */
+  .related.products ul.products li.product a:not(.button),
+  .upsells.products ul.products li.product a:not(.button) {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* Назва товару на картці / Product title on card */
+  .related.products ul.products li.product .woocommerce-loop-product__title,
+  .upsells.products ul.products li.product .woocommerce-loop-product__title {
+    padding: 0.625rem 0.75rem 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Ціна на картці / Price on card */
+  .related.products ul.products li.product .price,
+  .upsells.products ul.products li.product .price {
+    padding: 0.25rem 0.75rem 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+  }
+
+  .related.products ul.products li.product .price del,
+  .upsells.products ul.products li.product .price del {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #9ca3af;
+  }
+
+  .related.products ul.products li.product .price ins,
+  .upsells.products ul.products li.product .price ins {
+    text-decoration: none;
+  }
+
+  /* Кнопка "В кошик" на картці / Add-to-cart button on card */
+  .related.products ul.products li.product .button,
+  .upsells.products ul.products li.product .button {
+    display: block;
+    width: calc(100% - 1.5rem);
+    margin: 0 0.75rem 0.75rem;
+    text-align: center;
+    background-color: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    color: #374151;
+    border-radius: 0.625rem;
+    padding: 0.5rem 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+    cursor: pointer;
+  }
+
+  .related.products ul.products li.product .button:hover,
+  .upsells.products ul.products li.product .button:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #fff;
+  }
+
+  /* mt-auto штовхає кнопку вниз картки / mt-auto pushes button to card bottom */
+  .related.products ul.products li.product .button,
+  .upsells.products ul.products li.product .button {
+    margin-top: auto;
+  }
+
+}
