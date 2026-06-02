@@ -12,9 +12,16 @@ class Post extends Composer
      * @var array
      */
     protected static $views = [
+        'index',
+        'single',
+        'category',
+        'tag',
+        'page-about',
+        'page-about-us',
         'partials.page-header',
         'partials.content',
         'partials.content-*',
+        'partials.content-blog-card',
     ];
 
     /**
@@ -22,7 +29,9 @@ class Post extends Composer
      */
     public function title(): string
     {
-        if ($this->view->name() !== 'partials.page-header') {
+        $archiveViews = ['partials.page-header', 'index', 'category', 'tag'];
+
+        if (! in_array($this->view->name(), $archiveViews, true)) {
             return get_the_title();
         }
 
@@ -34,8 +43,20 @@ class Post extends Composer
             return __('Latest Posts', 'sage');
         }
 
+        if (is_category()) {
+            $title = single_cat_title('', false);
+
+            return is_string($title) && $title !== '' ? $title : __('Категорія', 'solidshop');
+        }
+
+        if (is_tag()) {
+            $title = single_tag_title('', false);
+
+            return is_string($title) && $title !== '' ? $title : __('Тег', 'solidshop');
+        }
+
         if (is_archive()) {
-            return get_the_archive_title();
+            return wp_strip_all_tags(get_the_archive_title());
         }
 
         if (is_search()) {

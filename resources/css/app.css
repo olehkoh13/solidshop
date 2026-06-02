@@ -3,6 +3,34 @@
 @source "../**/*.blade.php";
 @source "../**/*.js";
 
+/*
+ * SolidShop action button tokens — change here to retheme the whole site.
+ * Токени action-кнопок — змініть тут, щоб оновити колір на всьому сайті.
+ */
+:root {
+  --ss-btn-bg: var(--color-blue-600);
+  --ss-btn-bg-hover: var(--color-blue-700);
+  --ss-btn-color: #ffffff;
+  --ss-btn-border: var(--color-blue-600);
+  --ss-btn-border-hover: var(--color-blue-700);
+  --ss-btn-radius: 0;
+  --ss-btn-success-bg: var(--color-blue-600);
+  --ss-btn-success-border: var(--color-blue-600);
+  --ss-btn-padding-y: 0.875rem;
+  --ss-btn-padding-x: 1.5rem;
+  --ss-btn-font-size: 0.875rem;
+  --ss-btn-letter-spacing: 0.05em;
+  --ss-btn-loop-padding-y: 0.75rem;
+  --ss-btn-loop-padding-x: 0.875rem;
+  --ss-btn-loop-font-size: 0.6875rem;
+  --ss-badge-new-bg: var(--ss-btn-bg);
+  --ss-sp-radius: 0;
+  --ss-sp-accent: #111827;
+  --ss-sp-btn-disabled-bg: #e5e7eb;
+  --ss-sp-btn-disabled-text: #9ca3af;
+  --ss-sp-btn-disabled-border: #d1d5db;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    WooCommerce — Кастомні стилі компонентів під Tailwind v4
    WooCommerce — Custom component styles aligned with Tailwind v4 design system
@@ -11,6 +39,350 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @layer components {
+
+  /*
+   * Global action buttons — brand blue, sharp corners site-wide.
+   * Глобальні action-кнопки — фірмовий синій, гострі кути на всьому сайті.
+   */
+  .ss-btn,
+  .button,
+  .button.alt,
+  a.button,
+  input[type="submit"],
+  button[type="submit"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: var(--ss-btn-padding-y) var(--ss-btn-padding-x);
+    font-size: var(--ss-btn-font-size);
+    letter-spacing: var(--ss-btn-letter-spacing);
+    line-height: 1.25;
+    text-decoration: none !important;
+    text-align: center;
+    border-radius: var(--ss-btn-radius) !important;
+    background-color: var(--ss-btn-bg) !important;
+    color: var(--ss-btn-color) !important;
+    border: 1px solid var(--ss-btn-border) !important;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s linear, border-color 0.15s linear, color 0.15s linear;
+  }
+
+  .ss-btn:hover,
+  .button:hover,
+  .button.alt:hover,
+  a.button:hover,
+  input[type="submit"]:hover,
+  button[type="submit"]:hover {
+    background-color: var(--ss-btn-bg-hover) !important;
+    border-color: var(--ss-btn-border-hover) !important;
+    color: var(--ss-btn-color) !important;
+  }
+
+  .ss-btn:disabled,
+  .button:disabled,
+  button[type="submit"]:disabled,
+  input[type="submit"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Outline variant — brand blue border / Outline — синя обводка */
+  .ss-btn-outline {
+    background-color: transparent !important;
+    color: var(--color-blue-600) !important;
+    border: 1px solid var(--color-blue-600) !important;
+  }
+
+  .ss-btn-outline:hover {
+    background-color: var(--color-blue-600) !important;
+    border-color: var(--color-blue-600) !important;
+    color: var(--ss-btn-color) !important;
+  }
+
+  /* Компактні loop-кнопки: каталог, головна, related / Compact loop add-to-cart buttons */
+  .ss-btn--loop,
+  .product-loop-action-btn .button,
+  .related.products ul.products li.product .button,
+  .upsells.products ul.products li.product .button {
+    padding: var(--ss-btn-loop-padding-y) var(--ss-btn-loop-padding-x);
+    font-size: var(--ss-btn-loop-font-size);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .ss-btn--loop:active,
+  .product-loop-action-btn .button:active {
+    transform: scale(0.98);
+  }
+
+  .ss-btn--loop.loading,
+  .product-loop-action-btn .button.loading {
+    opacity: 0.6;
+    cursor: wait;
+    pointer-events: none;
+  }
+
+  .ss-btn--loop.added,
+  .product-loop-action-btn .button.added {
+    background-color: var(--ss-btn-success-bg) !important;
+    border-color: var(--ss-btn-success-border) !important;
+  }
+
+  /* Header icon count badges / Лічильники wishlist + cart у шапці */
+  .solidshop-header-badge {
+    background-color: var(--ss-btn-bg) !important;
+    color: #ffffff !important;
+  }
+
+  /* ── 0. Product Badges (global) / Бейджі товару (глобально) ───────────── */
+  /* Єдиний стиль «Розпродаж» / «Новинка» на всіх картках і в галереї.       */
+  /* Unified Sale / New style on all cards and single-product gallery.        */
+
+  .ss-product-badges {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+    pointer-events: none;
+  }
+
+  /* Трохи більший відступ у великій галереї / Slightly larger inset on gallery */
+  .product-gallery-shell .ss-product-badges {
+    top: 1rem;
+    left: 1rem;
+    gap: 0.5rem;
+  }
+
+  .ss-product-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.625rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    border-radius: 9999px;
+    box-shadow: 0 4px 14px rgba(17, 24, 39, 0.12);
+    white-space: nowrap;
+  }
+
+  .ss-product-badge--sale {
+    color: #fff;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .ss-product-badge--new {
+    color: #fff;
+    background: var(--ss-btn-bg) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Приховуємо legacy WC span.onsale / Hide legacy WC span.onsale */
+  span.onsale {
+    display: none !important;
+  }
+
+  /* ── Catalog product cards / Картки каталогу ─────────────────────────────── */
+
+  .ss-product-card {
+    border-color: #e5e7eb;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .ss-product-card:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
+  }
+
+  .ss-product-card__image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+  }
+
+  .ss-product-card__wishlist {
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.15s linear, transform 0.15s linear;
+    pointer-events: none;
+  }
+
+  .ss-product-card__wishlist .js-wishlist-toggle {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #f3f4f6;
+    border-radius: 9999px;
+    box-shadow: 0 2px 8px rgba(17, 24, 39, 0.08);
+  }
+
+  .ss-product-card:hover .ss-product-card__wishlist,
+  .ss-product-card:focus-within .ss-product-card__wishlist {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .ss-product-card__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .ss-product-card__rating .star-rating {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  .ss-product-card__price .price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    line-height: 1.2;
+  }
+
+  .ss-product-card__price .price > .woocommerce-Price-amount,
+  .ss-product-card__price .price ins .woocommerce-Price-amount {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .ss-product-card__price .price del .woocommerce-Price-amount {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: #9ca3af;
+  }
+
+  .ss-product-card__price .price ins {
+    text-decoration: none;
+    color: #b45309;
+  }
+
+  .ss-product-card__hover-actions {
+    margin-top: 0.75rem;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(6px);
+    transition: max-height 0.2s ease, opacity 0.15s linear, transform 0.2s ease, margin-top 0.2s ease;
+    pointer-events: none;
+  }
+
+  .ss-product-card:hover .ss-product-card__hover-actions,
+  .ss-product-card:focus-within .ss-product-card__hover-actions {
+    max-height: 8rem;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .ss-product-card__add-to-cart .button,
+  .ss-product-card__add-to-cart .ss-btn--loop {
+    display: flex !important;
+    width: 100%;
+    justify-content: center;
+    background-color: var(--ss-btn-success-bg) !important;
+    border-color: var(--ss-btn-success-border) !important;
+    color: #fff !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .ss-product-card__add-to-cart .button:hover,
+  .ss-product-card__add-to-cart .ss-btn--loop:hover {
+    background-color: var(--ss-btn-bg-hover) !important;
+    border-color: var(--ss-btn-border-hover) !important;
+  }
+
+  .ss-product-card__size-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #111827;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: border-color 0.15s linear, background-color 0.15s linear, color 0.15s linear;
+  }
+
+  .ss-product-card__size-btn:hover,
+  .ss-product-card__size-btn:focus-visible {
+    border-color: #111827;
+    background: #111827;
+    color: #fff;
+    outline: none;
+  }
+
+  .ss-product-card__size-btn.is-loading,
+  .ss-product-card__size-btn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+    pointer-events: none;
+  }
+
+  .ss-product-card--list .ss-product-card__hover-actions {
+    margin-top: 0.5rem;
+    max-height: none;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .ss-product-card--list .ss-product-card__wishlist {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .ss-product-card--list .ss-product-card__add-to-cart .button,
+  .ss-product-card--list .ss-product-card__add-to-cart .ss-btn--loop {
+    width: auto !important;
+    min-width: 10rem;
+  }
+
+  @media (hover: none) {
+    .ss-product-card__wishlist,
+    .ss-product-card__hover-actions {
+      opacity: 1;
+      max-height: none;
+      transform: none;
+      pointer-events: auto;
+    }
+  }
+
+  .ss-product-badge--percent {
+    color: #fff;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  /* Контекст позиціонування для WC loops / Positioning context for WC loops */
+  ul.products li.product,
+  .related.products ul.products li.product,
+  .upsells.products ul.products li.product,
+  .ss-product-card,
+  .ss-product-card__media {
+    position: relative;
+  }
 
   /* ── 1. Price Block / Блок ціни ───────────────────────────────────────── */
   /* Нормалізуємо HTML WC-ціни під наш дизайн text-3xl font-extrabold       */
@@ -27,17 +399,22 @@
   /* Звичайна ціна / Regular price */
   .price-block .price > .woocommerce-Price-amount,
   .price-block .price ins .woocommerce-Price-amount {
-    font-size: 1.875rem;   /* text-3xl */
-    font-weight: 800;      /* font-extrabold */
-    color: #111827;        /* gray-900 */
+    font-size: 1.875rem;
+    /* text-3xl */
+    font-weight: 800;
+    /* font-extrabold */
+    color: #111827;
+    /* gray-900 */
     line-height: 1.1;
   }
 
   /* Стара ціна (закреслена) / Original price with strikethrough */
   .price-block .price del .woocommerce-Price-amount {
-    font-size: 1.125rem;   /* text-lg */
+    font-size: 1.125rem;
+    /* text-lg */
     font-weight: 400;
-    color: #9ca3af;        /* gray-400 */
+    color: #9ca3af;
+    /* gray-400 */
   }
 
   /* Прибираємо підкреслення з <ins> / Remove underline from <ins> */
@@ -45,42 +422,159 @@
     text-decoration: none;
   }
 
+  /* Коли обрано варіацію — ховаємо діапазон цін зверху (Rozetka-style).
+     When a variation is selected, hide the top price range (Rozetka-style).
+     Клас .variation-active додає JS через рідні події WC. */
+  .price-block--purchase.variation-active {
+    display: none;
+  }
+
+  /* Purchase-zone price — larger, left-aligned / Ціна над кнопкою купити */
+  .price-block--purchase {
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+
+  .price-block--purchase .price > .woocommerce-Price-amount,
+  .price-block--purchase .price ins .woocommerce-Price-amount {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1.1;
+  }
+
+  @media (min-width: 768px) {
+
+    .price-block--purchase .price > .woocommerce-Price-amount,
+    .price-block--purchase .price ins .woocommerce-Price-amount {
+      font-size: 2.5rem;
+    }
+  }
+
+  .price-block--purchase .price del .woocommerce-Price-amount {
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: #9ca3af;
+  }
+
+  /* Точна ціна варіації — той самий преміум-стиль / Exact variation price styling */
+  .single_variation .woocommerce-variation-price .price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .single_variation .woocommerce-variation-price {
+    text-align: left;
+  }
+
+  .single_variation .woocommerce-variation-price .price > .woocommerce-Price-amount,
+  .single_variation .woocommerce-variation-price .price ins .woocommerce-Price-amount {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1.1;
+  }
+
+  @media (min-width: 768px) {
+
+    .single_variation .woocommerce-variation-price .price > .woocommerce-Price-amount,
+    .single_variation .woocommerce-variation-price .price ins .woocommerce-Price-amount {
+      font-size: 2.5rem;
+    }
+  }
+
+  .single_variation .woocommerce-variation-price .price del .woocommerce-Price-amount {
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: #9ca3af;
+  }
+
+  .single_variation .woocommerce-variation-price .price ins {
+    text-decoration: none;
+  }
+
   /* ── 2. Variations Form: table → flex ─────────────────────────────────── */
-  /* Замінюємо застарілу <table> на flex-колонку                            */
-  /* Replace legacy <table> layout with clean flex column                   */
+  /* Замінюємо застарілу <table> на flex-колонку з щедрими відступами       */
+  /* Replace legacy <table> layout with a flex column and generous spacing    */
+
+  .product-actions-form .variations_form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
 
   .variations_form .variations {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0;
     border: none;
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .variations_form .variations tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    /* space-y-6 між рядками атрибутів / between attribute rows */
     width: 100%;
   }
 
-  .variations_form .variations tbody,
   .variations_form .variations tr {
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
+    gap: 0;
     width: 100%;
+    margin-bottom: 0;
+    /* відступи через gap на tbody / spacing via tbody gap */
+    align-items: flex-start;
   }
 
-  /* Підпис атрибуту / Attribute label */
+  /* Підпис атрибуту — ліве вирівнювання / Attribute label — left aligned */
+  .variations_form .variations .label,
+  .variations_form .variations th.label {
+    text-align: left;
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  /* Узгоджено з Tailwind-класами, які додає buildSwatches():
+     text-xs font-semibold uppercase tracking-wider text-gray-900 block mb-3.
+     Aligned with the Tailwind classes added by buildSwatches() so the
+     component CSS and the utility classes render identically. */
   .variations_form .variations .label label {
     display: block;
-    font-size: 0.6875rem;
-    font-weight: 700;
+    text-align: left;
+    font-size: 0.75rem;
+    /* text-xs */
+    font-weight: 600;
+    /* font-semibold */
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #6b7280; /* gray-500 */
+    letter-spacing: 0.05em;
+    /* tracking-wider */
+    color: #111827;
+    /* text-gray-900 */
+    margin-bottom: 0.75rem;
+    /* mb-3 — відступ до swatches / gap to swatches */
   }
+
+  /* Індикатор статусу — бейдж із Tailwind-класами (бурштиновий/смарагдовий),
+     які додає buildSwatches(). Не перевизначаємо колір/вагу тут.
+     The status indicator is a Tailwind-classed badge (amber/emerald) added by
+     buildSwatches(). We don't override color/weight here. */
 
   /* Область значень (swatches або select) / Values area */
   .variations_form .variations .value {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: flex-start;
     gap: 0.5rem;
+    width: 100%;
   }
 
   /* Стилізований native select (fallback, коли JS swatch ще не завантажено) */
@@ -89,7 +583,8 @@
     appearance: none;
     -webkit-appearance: none;
     background-color: #fff;
-    border: 1.5px solid #e5e7eb; /* border-gray-200 */
+    border: 1.5px solid #e5e7eb;
+    /* border-gray-200 */
     border-radius: 0.5rem;
     padding: 0.5rem 2.5rem 0.5rem 0.875rem;
     font-size: 0.875rem;
@@ -105,20 +600,31 @@
   }
 
   .variations_form .variations select:hover {
-    border-color: #9ca3af; /* gray-400 */
+    border-color: #9ca3af;
+    /* gray-400 */
   }
 
   .variations_form .variations select:focus {
     outline: none;
-    border-color: #1d4ed8; /* blue-700 */
+    border-color: #1d4ed8;
+    /* blue-700 */
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
   }
 
-  /* "Скинути" посилання / Reset variations link */
+  /* "Очистити" посилання — вирівнювання поруч із останнім блоком swatches.
+     "Clear" link — aligned beside the final swatch block without layout shift. */
   .variations_form .reset_variations {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    margin-left: 0.75rem;
+    /* ml-3 — чистий відступ зліва від swatches / clean left offset */
     font-size: 0.75rem;
+    font-weight: 500;
     color: #9ca3af;
     text-decoration: none;
+    line-height: 1.25;
+    white-space: nowrap;
     transition: color 0.1s ease;
   }
 
@@ -134,72 +640,114 @@
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
+    margin-bottom: 0.5rem;
+    /* mb-2 — відступ до наступного атрибуту / gap before next attr */
   }
 
-  /* Кругла кнопка кольору / Circular color swatch button */
+  /* Inline value next to attribute label / Значення поруч із лейблом */
+  .wc-swatch-value {
+    font-weight: 500;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .wc-swatch-value.is-selected {
+    color: #111827;
+    font-weight: 700;
+  }
+
+  /* Квадратна кнопка кольору / Flat square color swatch */
   .wc-color-swatch {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 9999px;
-    border: 2px solid transparent;
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--ss-sp-radius);
+    border: 1px solid #e5e7eb;
     padding: 0;
     cursor: pointer;
     flex-shrink: 0;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
-    box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.08), 0 0 0 1.5px #e5e7eb;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
   }
 
   .wc-color-swatch:hover {
-    transform: scale(1.12);
-    box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.14), 0 0 0 2px #374151;
+    border-color: #111827;
   }
 
-  /* Подвійне кільце при виборі / Double-ring on active */
   .wc-color-swatch.is-active {
-    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1), 0 0 0 3px #fff, 0 0 0 5px #1d4ed8;
-    transform: scale(1.05);
+    box-shadow: inset 0 0 0 2px #fff, 0 0 0 2px #000;
+    border-color: #000;
   }
 
-  /* Квадратна кнопка розміру / Square size badge button */
+  /* Універсальна плашка: розміри, логотип, матеріал тощо.
+     Universal badge: sizes, logos, material, etc. */
   .wc-size-swatch {
-    min-width: 2.375rem;
-    height: 2.375rem;
-    padding: 0 0.5rem;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 0.4rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--ss-sp-radius);
     background: #fff;
-    font-size: 0.6875rem;
-    font-weight: 800;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.1;
     color: #374151;
     cursor: pointer;
     letter-spacing: 0.04em;
+    text-transform: uppercase;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
     transition: all 0.12s ease;
   }
 
   .wc-size-swatch:hover {
-    border-color: #374151;
-    background: #f9fafb;
+    border-color: #111827;
     color: #111827;
   }
 
   .wc-size-swatch.is-active {
-    background: #111827;
-    border-color: #111827;
+    background: var(--ss-btn-bg);
+    border-color: var(--ss-btn-bg);
     color: #fff;
   }
 
   /* Недоступні варіації / Unavailable variation state */
   .wc-color-swatch:disabled,
   .wc-size-swatch:disabled {
-    opacity: 0.3;
+    opacity: 0.45;
     cursor: not-allowed;
     pointer-events: none;
   }
 
+  .wc-color-swatch:disabled::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      #9ca3af calc(50% - 0.5px),
+      #9ca3af calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+    pointer-events: none;
+  }
+
   /* ── 4. Quantity + Add-to-Cart row / Рядок qty + кнопка в кошик ────────── */
+
+  /* Блок варіації + кошик — відокремлюємо від фази конфігурації атрибутів.
+     Variation + cart block — separated from the attribute configuration phase. */
+  .product-actions-form .single_variation_wrap {
+    margin-top: 2rem;
+    /* mt-8 */
+    padding-top: 1rem;
+    /* pt-4 */
+    border-top: 1px solid #f3f4f6;
+    /* тонкий розділювач / subtle divider */
+  }
 
   .product-actions-form .woocommerce-variation-add-to-cart,
   .product-actions-form .cart:not(.variations_form) {
@@ -207,17 +755,38 @@
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
-    margin-top: 0.25rem;
+    margin-top: 0;
+  }
+
+  /* Ціна — окремий ряд над qty + кнопкою / Price on its own row above qty + button */
+  .product-actions-form .cart:not(.variations_form) > .price-block--purchase,
+  .product-actions-form .woocommerce-variation-add-to-cart > .price-block--purchase {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  /* Простий товар (без варіацій) — той самий відступ фази покупки.
+     Simple product (no variations) — same purchase-phase spacing. */
+  .product-actions-form > form.cart:not(.variations_form) {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+  }
+
+  /* Ціна обраної варіації — повітря перед qty / Selected variation price breathing room */
+  .product-actions-form .single_variation .woocommerce-variation-price {
+    margin-bottom: 1rem;
   }
 
   /* Лічильник кількості / Quantity stepper */
   .product-actions-form .quantity {
     display: inline-flex;
     align-items: stretch;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 0.625rem;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--ss-sp-radius);
     overflow: hidden;
     background: #fff;
+    flex-shrink: 0;
   }
 
   .product-actions-form input.qty {
@@ -250,21 +819,10 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background-color: #1d4ed8; /* blue-700 */
-    color: #fff;
-    border: none;
-    border-radius: 0.75rem;
     padding: 0.75rem 1.5rem;
     font-size: 0.875rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.12s ease, transform 0.1s ease;
     letter-spacing: 0.01em;
     line-height: 1;
-  }
-
-  .product-actions-form .single_add_to_cart_button:hover {
-    background-color: #1e40af; /* blue-800 */
   }
 
   .product-actions-form .single_add_to_cart_button:active {
@@ -277,102 +835,111 @@
   }
 
   .product-actions-form .single_add_to_cart_button.added {
-    background-color: #15803d; /* green-700 */
+    background-color: var(--ss-btn-success-bg) !important;
+    border-color: var(--ss-btn-success-border) !important;
   }
 
-  /* ── 5. Product Tabs → Clean Accordion ─────────────────────────────────── */
-  /* Перетворюємо legacy WC-таби на акордеон-секції                          */
-  /* Convert legacy WC tabs into clean stacked accordion sections             */
+  .product-actions-form .single_add_to_cart_button.disabled,
+  .product-actions-form .single_add_to_cart_button:disabled {
+    background-color: var(--ss-sp-btn-disabled-bg) !important;
+    border-color: var(--ss-sp-btn-disabled-border) !important;
+    color: var(--ss-sp-btn-disabled-text) !important;
+    cursor: not-allowed;
+    opacity: 1;
+  }
+
+  .product-actions-form .single_add_to_cart_button.disabled:hover,
+  .product-actions-form .single_add_to_cart_button:disabled:hover {
+    background-color: var(--ss-sp-btn-disabled-bg) !important;
+    border-color: var(--ss-sp-btn-disabled-border) !important;
+    color: var(--ss-sp-btn-disabled-text) !important;
+  }
+
+  /* ── 5. Product Tabs → Horizontal tabs ─────────────────────────────────── */
 
   .woocommerce-tabs {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
   }
 
-  /* Ховаємо застарілий <ul> список табів / Hide legacy <ul> tab nav */
   .woocommerce-tabs .wc-tabs {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 0;
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .woocommerce-tabs .wc-tabs li {
+    margin: 0;
+    padding: 0;
+  }
+
+  .woocommerce-tabs .wc-tabs li a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9ca3af;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.12s ease, border-color 0.12s ease;
+  }
+
+  .woocommerce-tabs .wc-tabs li a:hover {
+    color: #374151;
+  }
+
+  .woocommerce-tabs .wc-tabs li.active a {
+    color: var(--ss-sp-accent);
+    border-bottom-color: var(--ss-sp-accent);
+  }
+
+  .woocommerce-tabs .wc-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.125rem;
+    height: 1.125rem;
+    padding: 0 0.25rem;
+    font-size: 0.5625rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #fff;
+    background: var(--ss-sp-accent);
+    border-radius: 9999px;
+  }
+
+  .woocommerce-tabs .woocommerce-Tabs-panel {
+    display: none !important;
+    padding: 0 0 2rem;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .woocommerce-tabs .woocommerce-Tabs-panel.wc-tab-panel--active {
+    display: block !important;
+  }
+
+  .woocommerce-tabs .woocommerce-Tabs-panel > h2 {
     display: none !important;
   }
 
-  /* Всі панелі завжди видимі (перебиваємо inline style="display:none" від WC) */
-  /* All panels always visible (overrides WC's inline style="display:none")   */
-  .woocommerce-tabs .woocommerce-Tabs-panel {
-    display: block !important;
-    border: 1.5px solid #f3f4f6; /* gray-100 */
-    border-radius: 0.875rem;
-    overflow: hidden;
-  }
-
-  /* Заголовок панелі = кнопка акордеону / Panel heading = accordion toggle */
-  .woocommerce-tabs .woocommerce-Tabs-panel > h2 {
-    font-size: 0.8125rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #374151; /* gray-700 */
-    margin: 0;
-    padding: 1rem 1.25rem;
-    background: #f9fafb; /* gray-50 */
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    user-select: none;
-    transition: background-color 0.1s ease, color 0.1s ease;
-    border-bottom: 1.5px solid transparent;
-  }
-
-  .woocommerce-tabs .woocommerce-Tabs-panel > h2:hover {
-    background: #f3f4f6; /* gray-100 */
-  }
-
-  /* Відкрита секція / Open section highlight */
-  .woocommerce-tabs .woocommerce-Tabs-panel.wc-panel--open > h2 {
-    background: #eff6ff; /* blue-50 */
-    color: #1d4ed8;      /* blue-700 */
-    border-bottom-color: #dbeafe; /* blue-100 */
-  }
-
-  /* Стрілка-шеврон через ::after / Chevron via ::after */
-  .woocommerce-tabs .woocommerce-Tabs-panel > h2::after {
-    content: '';
-    display: block;
-    width: 1.125rem;
-    height: 1.125rem;
-    flex-shrink: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.5' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
-    background-size: contain;
-    background-repeat: no-repeat;
-    transition: transform 0.2s ease;
-  }
-
-  .woocommerce-tabs .woocommerce-Tabs-panel.wc-panel--open > h2::after {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.5' stroke='%231d4ed8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
-    transform: rotate(180deg);
-  }
-
-  /* Тіло панелі (обгортка, додана JS) / Panel body wrapper (added by JS) */
-  .woocommerce-tabs .wc-panel-body {
-    display: none;
-    padding: 1.25rem;
-  }
-
-  .woocommerce-tabs .woocommerce-Tabs-panel.wc-panel--open .wc-panel-body {
-    display: block;
-  }
-
-  /* Проза опису / Description prose */
-  .woocommerce-tabs .woocommerce-Tabs-panel--description .wc-panel-body {
+  .woocommerce-tabs .woocommerce-Tabs-panel--description {
     font-size: 0.9375rem;
     line-height: 1.75;
-    color: #374151; /* gray-700 */
+    color: #4b5563;
   }
 
-  .woocommerce-tabs .woocommerce-Tabs-panel--description .wc-panel-body p + p {
-    margin-top: 0.75rem;
+  .woocommerce-tabs .woocommerce-Tabs-panel--description p + p {
+    margin-top: 1rem;
   }
 
   /* Таблиця атрибутів / Attributes table */
@@ -400,7 +967,8 @@
 
   .woocommerce-product-attributes .woocommerce-product-attributes-item__value {
     padding: 0.625rem 0;
-    color: #6b7280; /* gray-500 */
+    color: #6b7280;
+    /* gray-500 */
   }
 
   .woocommerce-product-attributes .woocommerce-product-attributes-item__value p {
@@ -418,43 +986,207 @@
   .woocommerce-tabs #review_form input[type="email"],
   .woocommerce-tabs #review_form textarea {
     width: 100%;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--ss-sp-radius);
     padding: 0.5625rem 0.875rem;
     font-size: 0.875rem;
     color: #111827;
     background: #fff;
-    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+    transition: border-color 0.12s ease;
   }
 
   .woocommerce-tabs #review_form input:focus,
   .woocommerce-tabs #review_form textarea:focus {
     outline: none;
-    border-color: #1d4ed8;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    border-color: #111827;
   }
 
-  .woocommerce-tabs #review_form .form-submit #submit {
-    background-color: #1d4ed8;
-    color: #fff;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.625rem 1.25rem;
+  /* Submit uses global .button / Submit — глобальний .button */
+
+  /* ── Лейбл "Ваша оцінка" згори, зірки рівно під ним зліва.
+     Label on top, stars left-aligned directly beneath it. */
+  .woocommerce-tabs .comment-form-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
+
+  .woocommerce-tabs .comment-form-rating label {
     font-size: 0.875rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.12s ease;
+    font-weight: 600;
+    color: #111827;
   }
 
-  .woocommerce-tabs #review_form .form-submit #submit:hover {
-    background-color: #1e40af;
+  /* ── Зірки у формі відгуку (CSS-only, без JS) ──────────────────────────
+     Review-form rating selector (pure CSS, no JS).
+     WooCommerce створює <p class="stars"> своїм скриптом після DOMContentLoaded.
+     JS-інʼєкція SVG програє race condition — малюємо зірки через ::before.
+     WC builds <p class="stars"> after DOMContentLoaded; SVG JS loses the race,
+     so we paint stars with ::before — plugin-proof and timing-independent. */
+  .woocommerce-tabs .comment-form-rating .stars {
+    display: inline-flex;
+    gap: 0.25rem;
+    margin: 0;
+    font-size: 0;
+    /* ховаємо текст "1 з 5 зірок" / hide "1 of 5" text */
+    line-height: 1;
   }
 
-  /* Зірки рейтингу / Star rating widget */
+  .woocommerce-tabs .comment-form-rating .stars > span {
+    display: inline-flex;
+    gap: 0.25rem;
+  }
+
   .woocommerce-tabs .comment-form-rating .stars a {
-    color: #facc15; /* yellow-400 */
+    position: relative;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-block;
+    text-indent: -9999px;
+    overflow: hidden;
+    cursor: pointer;
     text-decoration: none;
-    font-size: 1.25rem;
+  }
+
+  .woocommerce-tabs .comment-form-rating .stars a::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23d1d5db'%3E%3Cpath d='M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 0 0 .95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 0 0-.37 1.12l1.07 3.29c.3.92-.75 1.69-1.54 1.12l-2.8-2.03a1 1 0 0 0-1.17 0l-2.8 2.03c-.78.57-1.84-.2-1.54-1.12l1.07-3.29a1 1 0 0 0-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 0 0 .95-.69l1.07-3.29Z'/%3E%3C/svg%3E");
+    transition: background-image 0.05s ease;
+  }
+
+  /* Hover: зірки до курсора — золоті / Hover: stars up to cursor turn gold */
+  .woocommerce-tabs .comment-form-rating .stars:hover a::before,
+  .woocommerce-tabs .comment-form-rating .stars.selected a::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23facc15'%3E%3Cpath d='M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 0 0 .95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 0 0-.37 1.12l1.07 3.29c.3.92-.75 1.69-1.54 1.12l-2.8-2.03a1 1 0 0 0-1.17 0l-2.8 2.03c-.78.57-1.84-.2-1.54-1.12l1.07-3.29a1 1 0 0 0-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 0 0 .95-.69l1.07-3.29Z'/%3E%3C/svg%3E");
+  }
+
+  /* Hover: зірки ПІСЛЯ курсора знову сірі / Hover: stars AFTER cursor turn gray */
+  .woocommerce-tabs .comment-form-rating .stars a:hover ~ a::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23d1d5db'%3E%3Cpath d='M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 0 0 .95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 0 0-.37 1.12l1.07 3.29c.3.92-.75 1.69-1.54 1.12l-2.8-2.03a1 1 0 0 0-1.17 0l-2.8 2.03c-.78.57-1.84-.2-1.54-1.12l1.07-3.29a1 1 0 0 0-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 0 0 .95-.69l1.07-3.29Z'/%3E%3C/svg%3E");
+  }
+
+  /* Selected: вибрана зірка золота, наступні сірі / Selected: chosen gold, rest gray */
+  .woocommerce-tabs .comment-form-rating .stars.selected a.active ~ a::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23d1d5db'%3E%3Cpath d='M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 0 0 .95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 0 0-.37 1.12l1.07 3.29c.3.92-.75 1.69-1.54 1.12l-2.8-2.03a1 1 0 0 0-1.17 0l-2.8 2.03c-.78.57-1.84-.2-1.54-1.12l1.07-3.29a1 1 0 0 0-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 0 0 .95-.69l1.07-3.29Z'/%3E%3C/svg%3E");
+  }
+
+  /* ── Read-only зірки опублікованих відгуків / Published review stars ──────
+     WC: <div class="star-rating"><span style="width:80%">…</span></div>
+     Малюємо 5 сірих зірок, поверх — золоті, обрізані шириною span у %.
+     WC width-% span; gray base + gold overlay clipped by inline width. */
+  .star-rating {
+    position: relative;
+    display: inline-block;
+    width: 6em;
+    height: 1.2em;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-indent: -9999px;
+    vertical-align: middle;
+  }
+
+  .star-rating::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23d1d5db'%3E%3Cpath d='M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 0 0 .95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 0 0-.37 1.12l1.07 3.29c.3.92-.75 1.69-1.54 1.12l-2.8-2.03a1 1 0 0 0-1.17 0l-2.8 2.03c-.78.57-1.84-.2-1.54-1.12l1.07-3.29a1 1 0 0 0-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 0 0 .95-.69l1.07-3.29Z'/%3E%3C/svg%3E");
+    background-size: 1.2em 1.2em;
+    background-repeat: repeat-x;
+  }
+
+  .star-rating span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    overflow: hidden;
+    text-indent: -9999px;
+  }
+
+  .star-rating span::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23facc15'%3E%3Cpath d='M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 0 0 .95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 0 0-.37 1.12l1.07 3.29c.3.92-.75 1.69-1.54 1.12l-2.8-2.03a1 1 0 0 0-1.17 0l-2.8 2.03c-.78.57-1.84-.2-1.54-1.12l1.07-3.29a1 1 0 0 0-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 0 0 .95-.69l1.07-3.29Z'/%3E%3C/svg%3E");
+    background-size: 1.2em 1.2em;
+    background-repeat: repeat-x;
+  }
+
+  /* ── Сповіщення WooCommerce (помилки/повідомлення) ────────────────────────
+     Преміальний плаский банер: білий фон, товста ліва червона смуга, мʼяка тінь,
+     округлені кути. Перекриваємо легасі-текстури й фіолетові рамки WooCommerce.
+     WooCommerce notices (errors/messages): premium flat banner — white bg, thick
+     red left border, soft shadow, rounded corners. Overrides legacy WC textures
+     and the default purple borders. */
+  .woocommerce-notices-wrapper {
+    width: 100%;
+    margin-bottom: 1.25rem;
+  }
+
+  .woocommerce-error,
+  .woocommerce-message,
+  .woocommerce-info {
+    list-style: none;
+    margin: 0 0 1.25rem;
+    padding: 1rem 1.25rem;
+    background: #fff;
+    /* суцільний білий фон / solid white bg */
+    border: 1px solid #f3f4f6;
+    /* delicate hairline */
+    border-left: 4px solid #ef4444;
+    /* border-l-4 border-red-500 (default error) */
+    border-radius: 0.75rem;
+    /* rounded-xl */
+    box-shadow: 0 4px 16px -4px rgba(17, 24, 39, 0.10), 0 1px 2px rgba(17, 24, 39, 0.04);
+    color: #374151;
+    /* gray-700 */
+    font-size: 0.9rem;
+    line-height: 1.5;
+    /* Скидаємо рідні легасі-стилі WooCommerce / reset legacy WC styles */
+    background-image: none;
+    text-shadow: none;
+  }
+
+  /* Зелений акцент для успіху / Green accent for success messages */
+  .woocommerce-message {
+    border-left-color: #22c55e;
+    /* green-500 */
+  }
+
+  /* Синій акцент для інфо / Blue accent for info notices */
+  .woocommerce-info {
+    border-left-color: #3b82f6;
+    /* blue-500 */
+  }
+
+  /* WooCommerce інколи додає ::before з іконкою-гліфом — прибираємо легасі.
+     WooCommerce sometimes adds a ::before glyph icon — drop the legacy one. */
+  .woocommerce-error::before,
+  .woocommerce-message::before,
+  .woocommerce-info::before {
+    display: none;
+  }
+
+  .woocommerce-error li,
+  .woocommerce-message li,
+  .woocommerce-info li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Кнопка всередині сповіщення (напр. "Переглянути кошик") / Inline notice button */
+  .woocommerce-message .button,
+  .woocommerce-error .button {
+    float: none;
+    margin-left: 0.75rem;
   }
 
 }
@@ -468,23 +1200,81 @@
 @layer components {
 
   /* ── 6. Product Gallery / Галерея товару ─────────────────────────────── */
+
   /* Обгортка лівої колонки / Left column wrapper */
   .product-gallery-column {
     position: relative;
   }
 
+  /* Shell: контекст позиціонування для бейджів і лупи / Positioning context */
+  .product-gallery-shell {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Стек бейджів (розпродаж / новинка) / Badge stack (sale / new) */
+  .product-gallery-badges {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    pointer-events: none;
+  }
+
+  /* Базовий бейдж / Base gallery badge */
+  .product-gallery-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.625rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    border-radius: 9999px;
+    box-shadow: 0 4px 14px rgba(17, 24, 39, 0.12);
+    white-space: nowrap;
+  }
+
+  /* Розпродаж / Sale badge */
+  .product-gallery-badge--sale {
+    color: #fff;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  /* Новинка / New badge */
+  .product-gallery-badge--new {
+    color: #fff;
+    background: var(--ss-btn-bg) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Приховуємо стандартний WC flash, якщо залишився / Hide legacy WC flash if any */
+  .product-gallery-shell > .onsale {
+    display: none !important;
+  }
+
   /* Flexslider viewport (головне зображення) / Flexslider main image viewport */
   .woocommerce-product-gallery {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 0.875rem;
+    width: 100%;
   }
 
   .woocommerce-product-gallery .flex-viewport {
-    border-radius: 1.25rem; /* rounded-2xl */
+    position: relative;
+    border-radius: var(--ss-sp-radius);
     overflow: hidden;
-    background-color: #f9fafb; /* gray-50 */
-    border: 1.5px solid #f3f4f6;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
   }
 
   /* Головне зображення товару / Main product image */
@@ -493,40 +1283,54 @@
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 1.25rem;
+    border-radius: var(--ss-sp-radius);
     object-fit: contain;
     aspect-ratio: 1 / 1;
     background-color: #f9fafb;
   }
 
-  /* Гарантуємо правильний аспект якщо немає Flexslider / Ensure correct aspect without Flexslider */
   .woocommerce-product-gallery .woocommerce-product-gallery__image:first-child > a > img {
-    border-radius: 1.25rem;
+    border-radius: var(--ss-sp-radius);
   }
 
-  /* Іконка зум / Zoom trigger icon */
+  /* Кнопка лупи (lightbox/zoom) / Magnifier trigger button */
   .woocommerce-product-gallery__trigger {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    z-index: 10;
-    width: 2.25rem;
-    height: 2.25rem;
-    background: rgba(255, 255, 255, 0.92);
-    border-radius: 0.625rem;
+    z-index: 15;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 9999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    transition: background-color 0.12s ease;
+    box-shadow: 0 4px 16px rgba(17, 24, 39, 0.12);
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+    text-decoration: none;
   }
 
   .woocommerce-product-gallery__trigger:hover {
     background: #fff;
+    color: #111827;
+    transform: scale(1.04);
+    box-shadow: 0 6px 20px rgba(17, 24, 39, 0.14);
   }
 
-  /* Зображення у кнопці зум (іконка) / Zoom trigger inner img */
+  /* SVG-лупа (підставляється JS) / SVG magnifier icon (injected by JS) */
+  .woocommerce-product-gallery__trigger .product-gallery-magnifier-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* Рідна іконка WC (fallback до JS) / Native WC icon (fallback before JS) */
   .woocommerce-product-gallery__trigger > img {
     width: 1.125rem !important;
     height: 1.125rem !important;
@@ -535,6 +1339,7 @@
     border: none !important;
     background: none !important;
     object-fit: contain !important;
+    opacity: 0.85;
   }
 
   /* ── Горизонтальний ряд мініатюр / Horizontal thumbnail strip ──────── */
@@ -556,21 +1361,20 @@
     width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
-    border-radius: 0.75rem;
+    border-radius: var(--ss-sp-radius);
     border: 2px solid transparent;
     cursor: pointer;
     background-color: #f9fafb;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color 0.15s ease;
   }
 
   .woocommerce-product-gallery .flex-control-thumbs img:hover {
-    border-color: #9ca3af; /* gray-400 */
+    border-color: #9ca3af;
   }
 
-  /* Активна мініатюра / Active thumbnail */
   .woocommerce-product-gallery .flex-control-thumbs .flex-active {
-    border-color: #1d4ed8 !important; /* blue-700 */
-    box-shadow: 0 0 0 1px #1d4ed8;
+    border-color: #000 !important;
+    box-shadow: 0 0 0 1px #000;
   }
 
   /* ── 7. Qty ± Stepper Buttons / Кнопки плюс-мінус кількості ─────────── */
@@ -583,7 +1387,8 @@
     justify-content: center;
     width: 2.5rem;
     flex-shrink: 0;
-    color: #374151; /* gray-700 */
+    color: #374151;
+    /* gray-700 */
     background: transparent;
     border: none;
     cursor: pointer;
@@ -591,7 +1396,8 @@
   }
 
   .qty-btn:hover {
-    background-color: #f3f4f6; /* gray-100 */
+    background-color: #f3f4f6;
+    /* gray-100 */
     color: #111827;
   }
 
@@ -603,48 +1409,21 @@
     border-left: 1px solid #f3f4f6;
   }
 
-  /* ── 8. SVG Stars in Review Form / SVG-зірки у формі відгуків ──────── */
-  /* JS додає клас .wc-svg-stars та замінює текст посилань на SVG          */
-  /* JS adds .wc-svg-stars class and replaces link text with SVG icons     */
-
-  .wc-svg-stars {
-    display: inline-flex;
-    gap: 0.125rem;
-    line-height: 1;
-  }
-
-  /* Зірки: сірі за замовчуванням / Stars: gray by default */
-  .wc-svg-stars a {
-    color: #d1d5db; /* gray-300 */
-    transition: color 0.1s ease;
-    text-decoration: none;
-    display: inline-flex;
-  }
-
-  /* Ефект hover: золоті зірки до поточної / Hover: golden stars up to cursor */
-  .wc-svg-stars:hover a {
-    color: #facc15; /* yellow-400 */
-  }
-
-  .wc-svg-stars a:hover ~ a {
-    color: #d1d5db; /* gray-300 — зірки після курсора / stars after cursor */
-  }
-
-  /* Вибрана зірка (WC додає .active) / Selected star (WC adds .active) */
-  .wc-svg-stars a.active,
-  .stars.selected a.active {
-    color: #facc15;
-  }
-
-  /* ── 9. Short Description typography / Типографіка короткого опису ─── */
+  /* ── 8. Short Description typography / Типографіка короткого опису ─── */
   .product-short-desc {
     font-size: 0.9rem;
     line-height: 1.75;
-    color: #4b5563; /* gray-600 */
+    color: #4b5563;
+    /* gray-600 */
   }
 
-  .product-short-desc p { margin-bottom: 0.625rem; }
-  .product-short-desc p:last-child { margin-bottom: 0; }
+  .product-short-desc p {
+    margin-bottom: 0.625rem;
+  }
+
+  .product-short-desc p:last-child {
+    margin-bottom: 0;
+  }
 
   .product-short-desc ul,
   .product-short-desc ol {
@@ -652,15 +1431,24 @@
     margin-bottom: 0.625rem;
   }
 
-  .product-short-desc li { margin-bottom: 0.25rem; }
+  .product-short-desc li {
+    margin-bottom: 0.25rem;
+  }
 
-  .product-short-desc strong { font-weight: 700; color: #111827; }
+  .product-short-desc strong {
+    font-weight: 700;
+    color: #111827;
+  }
 
-  /* ── 10. Related & Upsell Products Grid / Сітка схожих + апсейл ────── */
+  /* ── 10. Related Products (catalog cards) / Супутні товари ─────────── */
 
-  /* Заголовок розділу / Section heading */
+  .solidshop-related-products {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
   .related.products > h2,
-  .upsells.products > h2 {
+  .solidshop-related-products > h2 {
     font-size: 1.375rem;
     font-weight: 800;
     color: #111827;
@@ -669,145 +1457,3376 @@
     padding-top: 2rem;
   }
 
-  /* Перебиваємо WC-list на CSS grid / Override WC's <ul> float to CSS grid */
-  .related.products ul.products,
-  .upsells.products ul.products {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-    list-style: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+  .solidshop-related-products > h2 {
+    padding-top: 0;
+  }
+
+  .solidshop-related-products .solidshop-catalog-grid,
+  .front-page-new-arrivals .solidshop-catalog-grid {
+    list-style: none;
+    margin: 0;
+    /* Gutter lives on .solidshop-related-track spacers / Відступ — через spacers на треку */
+  }
+
+  .front-page-new-arrivals .solidshop-related-slide .ss-product-card {
+    height: 100%;
+  }
+
+  .front-page-categories .solidshop-related-slide {
+    min-width: 0;
+  }
+
+  /* Mobile horizontal carousel / Горизонтальний swipe на mobile */
+  .solidshop-related-track {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .solidshop-related-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile gutter via flex spacers — reliable with scroll-snap / Відступ через flex-spacers */
+  @media (max-width: 767px) {
+    .solidshop-related-track {
+      scroll-padding-inline: 1rem;
+    }
+
+    .solidshop-related-track::before,
+    .solidshop-related-track::after {
+      content: '';
+      flex: 0 0 1rem;
+    }
+  }
+
+  @media (min-width: 640px) and (max-width: 767px) {
+    .solidshop-related-track {
+      scroll-padding-inline: 1.5rem;
+    }
+
+    .solidshop-related-track::before,
+    .solidshop-related-track::after {
+      flex-basis: 1.5rem;
+    }
+  }
+
+  .solidshop-related-slide .ss-product-card {
+    height: 100%;
+  }
+
+  .solidshop-related-dots {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .solidshop-related-dots button {
+    width: 0.5rem;
+    height: 0.5rem;
+    padding: 0;
+    border: none;
+    border-radius: 9999px;
+    background-color: #d1d5db;
+    cursor: pointer;
+    transition: background-color 100ms linear, transform 100ms linear;
+  }
+
+  .solidshop-related-dots button.active {
+    background-color: #111827;
+    transform: scale(1.15);
+  }
+
+  .solidshop-related-dots button:focus-visible {
+    outline: 2px solid #111827;
+    outline-offset: 2px;
   }
 
   @media (min-width: 768px) {
-    .related.products ul.products,
-    .upsells.products ul.products {
-      grid-template-columns: repeat(3, 1fr);
+    .solidshop-related-track {
+      overflow: visible;
+    }
+
+    .solidshop-related-track::before,
+    .solidshop-related-track::after {
+      content: none;
+    }
+  }
+
+  /* ── Sidebar accordions / Акордеони в правій колонці ─────────────────── */
+  .product-conversion-panel .product-actions-form {
+    padding-bottom: 0;
+  }
+
+  /* Secondary row under add-to-cart (wishlist link) / Ряд під кнопкою «Додати в кошик» */
+  .product-secondary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding-bottom: 2rem;
+  }
+
+  .product-wishlist-link {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .product-wishlist-link:focus-visible {
+    outline: 2px solid #111827;
+    outline-offset: 2px;
+  }
+
+  .product-wishlist-link.is-in-wishlist .js-wishlist-icon-path {
+    fill: currentColor;
+  }
+
+  .product-conversion-panel .product-sidebar-accordions {
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .product-sidebar-accordions__item {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .product-sidebar-accordions__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 0;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #111827;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .product-sidebar-accordions__trigger svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: #9ca3af;
+    transition: transform 0.2s ease;
+  }
+
+  .product-sidebar-accordions__item.is-open .product-sidebar-accordions__trigger svg {
+    transform: rotate(180deg);
+  }
+
+  .product-sidebar-accordions__panel {
+    display: none;
+    padding: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.65;
+    color: #4b5563;
+  }
+
+  .product-sidebar-accordions__item.is-open .product-sidebar-accordions__panel {
+    display: block;
+  }
+
+  .product-sidebar-accordions__panel ul {
+    margin: 0;
+    padding-left: 1.125rem;
+  }
+
+  .product-sidebar-accordions__panel li + li {
+    margin-top: 0.375rem;
+  }
+
+  /* ── Cross-sells strip / Блок «Добре поєднується з» ─────────────────── */
+  .product-cross-sells {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .product-cross-sells__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.875rem;
+  }
+
+  .product-cross-sells__title {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #111827;
+  }
+
+  .product-cross-sells__nav {
+    display: flex;
+    gap: 0.375rem;
+  }
+
+  .product-cross-sells__nav button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #374151;
+    cursor: pointer;
+    border-radius: var(--ss-sp-radius);
+  }
+
+  .product-cross-sells__card {
+    display: flex;
+    gap: 0.875rem;
+    align-items: center;
+  }
+
+  .product-cross-sells__thumb {
+    width: 4.5rem;
+    height: 4.5rem;
+    flex-shrink: 0;
+    object-fit: cover;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+  }
+
+  .product-cross-sells__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .product-cross-sells__name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.35;
+  }
+
+  .product-cross-sells__name a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .product-cross-sells__price {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 0.25rem;
+  }
+
+  .product-cross-sells__action {
+    margin-top: 0.5rem;
+  }
+
+  .product-cross-sells__action .button,
+  .product-cross-sells__action .ss-btn--loop {
+    display: inline-flex !important;
+    width: auto !important;
+    max-width: 100%;
+    padding: 0.3125rem 0.625rem !important;
+    font-size: 0.6875rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    line-height: 1.25 !important;
+    white-space: nowrap;
+    background-color: #ffffff !important;
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem !important;
+  }
+
+  .product-cross-sells__action .button:hover,
+  .product-cross-sells__action .ss-btn--loop:hover {
+    background-color: #f9fafb !important;
+    border-color: #9ca3af !important;
+    color: #111827 !important;
+  }
+
+  .product-cross-sells__action .button.loading,
+  .product-cross-sells__action .ss-btn--loop.loading {
+    opacity: 0.6;
+  }
+
+  /* ── Trust bar / Смуга довіри ───────────────────────────────────────── */
+  .site-trust-bar .product-trust-bar {
+    margin: 0;
+    border-top: none;
+  }
+
+  .product-trust-bar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding: 2rem 0;
+    margin: 2rem 0 0;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  @media (min-width: 640px) {
+    .product-trust-bar {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
   @media (min-width: 1024px) {
-    .related.products ul.products,
-    .upsells.products ul.products {
+    .product-trust-bar {
       grid-template-columns: repeat(4, 1fr);
     }
   }
 
-  /* Картка товару / Product card */
-  .related.products ul.products li.product,
-  .upsells.products ul.products li.product {
-    background: #fff;
-    border: 1.5px solid #f3f4f6;
-    border-radius: 1rem;
-    overflow: hidden;
+  .product-trust-bar__item {
     display: flex;
-    flex-direction: column;
-    transition: box-shadow 0.15s ease, border-color 0.15s ease;
-    width: auto !important; /* Скасовуємо WC-inline ширину / Cancel WC's inline width */
-    float: none !important;
-    margin: 0 !important;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
 
-  .related.products ul.products li.product:hover,
-  .upsells.products ul.products li.product:hover {
-    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.09);
-    border-color: #e5e7eb;
-  }
-
-  /* Зображення картки / Card image */
-  .related.products ul.products li.product img,
-  .upsells.products ul.products li.product img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-    background-color: #f9fafb;
-    display: block;
-    transition: transform 0.2s ease;
-  }
-
-  .related.products ul.products li.product:hover img,
-  .upsells.products ul.products li.product:hover img {
-    transform: scale(1.04);
-  }
-
-  /* Посилання-обгортка / Link wrapper */
-  .related.products ul.products li.product a:not(.button),
-  .upsells.products ul.products li.product a:not(.button) {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  /* Назва товару на картці / Product title on card */
-  .related.products ul.products li.product .woocommerce-loop-product__title,
-  .upsells.products ul.products li.product .woocommerce-loop-product__title {
-    padding: 0.625rem 0.75rem 0.25rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
+  .product-trust-bar__icon {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: #111827;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 
-  /* Ціна на картці / Price on card */
-  .related.products ul.products li.product .price,
-  .upsells.products ul.products li.product .price {
-    padding: 0.25rem 0.75rem 0.75rem;
-    font-size: 0.9375rem;
+  .product-trust-bar__title {
+    font-size: 0.8125rem;
     font-weight: 700;
     color: #111827;
-    display: flex;
-    align-items: baseline;
-    gap: 0.375rem;
-    flex-wrap: wrap;
+    line-height: 1.3;
   }
 
-  .related.products ul.products li.product .price del,
-  .upsells.products ul.products li.product .price del {
+  .product-trust-bar__text {
     font-size: 0.75rem;
-    font-weight: 400;
-    color: #9ca3af;
+    color: #6b7280;
+    margin-top: 0.125rem;
+    line-height: 1.4;
   }
 
-  .related.products ul.products li.product .price ins,
-  .upsells.products ul.products li.product .price ins {
-    text-decoration: none;
-  }
-
-  /* Кнопка "В кошик" на картці / Add-to-cart button on card */
-  .related.products ul.products li.product .button,
-  .upsells.products ul.products li.product .button {
-    display: block;
-    width: calc(100% - 1.5rem);
-    margin: 0 0.75rem 0.75rem;
-    text-align: center;
-    background-color: #f9fafb;
-    border: 1.5px solid #e5e7eb;
-    color: #374151;
-    border-radius: 0.625rem;
-    padding: 0.5rem 0;
+  /* ── Product meta footer / SKU + категорії ───────────────────────────── */
+  .product-sku-above-title {
     font-size: 0.8125rem;
+    color: #111827;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+
+  .product-meta-footer {
+    text-align: center;
+    padding: 1.5rem 0 0;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    line-height: 1.6;
+  }
+
+  .product-meta-footer a {
+    color: #6b7280;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .product-meta-footer a:hover {
+    color: #111827;
+  }
+
+  .product-meta-footer__sep {
+    margin: 0 0.5rem;
+    color: #d1d5db;
+  }
+
+  /* Conversion panel flat layout / Плоска права колонка */
+  .product-conversion-panel {
+    position: sticky;
+    top: 6rem;
+  }
+
+  /* Short description under title / Короткий опис під заголовком */
+  .product-short-description {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: #4b5563;
+    text-align: left;
+  }
+
+  .product-short-description p {
+    margin: 0;
+  }
+
+  .product-short-description p + p {
+    margin-top: 0.75rem;
+  }
+
+  .product-short-description ul {
+    list-style: disc;
+    padding-left: 1.25rem;
+    margin: 0.5rem 0 0;
+  }
+
+  .product-short-description li + li {
+    margin-top: 0.25rem;
+  }
+
+  .product-conversion-panel .price-block--purchase .price > .woocommerce-Price-amount,
+  .product-conversion-panel .price-block--purchase .price ins .woocommerce-Price-amount {
+    color: #111827;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+       Глобальна доступність / Global accessibility helper
+    ═══════════════════════════════════════════════════════════════════════════ */
+  .screen-reader-text,
+  .sr-only {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .wc-swatch-group--error {
+    animation: shake 0.4s ease;
+    outline: 2px solid #ef4444;
+    border-radius: 6px;
+    padding: 4px;
+  }
+
+  @keyframes shake {
+
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+
+    25% {
+      transform: translateX(-6px);
+    }
+
+    75% {
+      transform: translateX(6px);
+    }
+  }
+
+  /* ── Checkout (classic) / Оформлення замовлення (classic) ─────────────── */
+  .woocommerce-checkout .woocommerce-billing-fields > h3,
+  .woocommerce-checkout .woocommerce-shipping-fields > h3,
+  .woocommerce-checkout .woocommerce-additional-fields > h3 {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  .woocommerce-checkout #customer_details::after {
+    content: "";
+    display: block;
+    clear: both;
+  }
+
+  .woocommerce-checkout .select2-container .select2-selection--single {
+    min-height: 46px;
+    border: 1px solid #d1d5db;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .woocommerce-checkout .select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 0.875rem;
+    color: #111827;
+    line-height: 46px;
+  }
+
+  .woocommerce-checkout .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 44px;
+    right: 0.5rem;
+  }
+
+  .woocommerce-checkout .select2-container--default.select2-container--focus .select2-selection--single,
+  .woocommerce-checkout .select2-container--default.select2-container--open .select2-selection--single {
+    border-color: #000;
+    outline: 1px solid #000;
+  }
+
+  .woocommerce-checkout-review-order-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .woocommerce-checkout-review-order-table thead th {
+    text-align: left;
+    font-weight: 700;
+    color: #111827;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .woocommerce-checkout-review-order-table thead th.product-total {
+    text-align: right;
+  }
+
+  .woocommerce-checkout-review-order-table th,
+  .woocommerce-checkout-review-order-table td {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+  }
+
+  /* Підсумки: підписи зліва, суми справа / Totals: labels left, amounts right */
+  .woocommerce-checkout-review-order-table tfoot th {
+    text-align: left !important;
     font-weight: 600;
+    color: #111827;
+    width: 55%;
+  }
+
+  .woocommerce-checkout-review-order-table tfoot td {
+    text-align: right;
+    color: #111827;
+  }
+
+  .woocommerce-checkout-review-order-table tfoot tr.woocommerce-shipping-totals td {
+    text-align: left;
+  }
+
+  /* ── Shipping options — premium card list / Варіанти доставки — premium-картки ── */
+  .woocommerce-checkout-review-order-table tfoot tr.woocommerce-shipping-totals {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .woocommerce-checkout-review-order-table tfoot tr.woocommerce-shipping-totals th {
+    display: block;
+    width: 100% !important;
+    padding: 0 0 0.75rem;
+    border-bottom: 0;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #111827;
+  }
+
+  .woocommerce-checkout-review-order-table tfoot tr.woocommerce-shipping-totals td {
+    display: block;
+    width: 100% !important;
+    padding: 0 0 0.25rem;
+  }
+
+  .woocommerce-checkout .woocommerce-shipping-methods,
+  .woocommerce-checkout #shipping_method {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .woocommerce-checkout .woocommerce-shipping-methods > li,
+  .woocommerce-checkout #shipping_method > li {
+    position: relative;
+    margin: 0 !important;
+    padding: 0;
+    list-style: none;
+  }
+
+  .woocommerce-checkout .woocommerce-shipping-methods > li input.shipping_method,
+  .woocommerce-checkout #shipping_method > li input.shipping_method {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .woocommerce-checkout .woocommerce-shipping-methods > li label,
+  .woocommerce-checkout #shipping_method > li label {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.875rem 1rem;
+    margin: 0;
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #111827;
+    cursor: pointer;
+    transition: border-color 0.15s linear, background-color 0.15s linear, box-shadow 0.15s linear;
+  }
+
+  .woocommerce-checkout .woocommerce-shipping-methods > li label::before,
+  .woocommerce-checkout #shipping_method > li label::before {
+    content: "";
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    background: #fff;
+    transition: border-color 0.15s linear, box-shadow 0.15s linear;
+  }
+
+  .woocommerce-checkout .woocommerce-shipping-methods > li input.shipping_method:checked + label,
+  .woocommerce-checkout #shipping_method > li input.shipping_method:checked + label {
+    border-color: #000;
+    background: #fafafa;
+    box-shadow: inset 0 0 0 1px #000;
+  }
+
+  .woocommerce-checkout .woocommerce-shipping-methods > li input.shipping_method:checked + label::before,
+  .woocommerce-checkout #shipping_method > li input.shipping_method:checked + label::before {
+    border-color: #000;
+    box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 10px #000;
+  }
+
+  .woocommerce-checkout .woocommerce-shipping-methods > li input.shipping_method:focus-visible + label,
+  .woocommerce-checkout #shipping_method > li input.shipping_method:focus-visible + label {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+
+  /* Hide inline shipping prices in method cards / Без ціни в картках доставки */
+  .woocommerce-checkout #shipping_method label .woocommerce-Price-amount,
+  .woocommerce-checkout #shipping_method label .ss-shipping-price {
+    display: none !important;
+  }
+
+  /* WC Ukraine Shipping — поля НП / Укрпошта / Rozetka (plugin-safe) */
+  .woocommerce-checkout .wcus-checkout-fields {
+    margin-top: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid #e5e7eb;
+    background: #fafafa;
+  }
+
+  .woocommerce-checkout .wcus-checkout-fields > h3 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .woocommerce-checkout .zen-ui-select__value {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 46px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    font-size: 0.875rem;
+    color: #111827;
+    cursor: pointer;
+    transition: border-color 0.15s linear;
+  }
+
+  .woocommerce-checkout .zen-ui-select__value:hover,
+  .woocommerce-checkout .zen-ui-select.is-open .zen-ui-select__value {
+    border-color: #000;
+  }
+
+  .woocommerce-checkout .zen-ui-select__value svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    flex-shrink: 0;
+    fill: #6b7280;
+  }
+
+  .woocommerce-checkout .wcus-checkout-fields .form-row {
+    margin-bottom: 1rem;
+  }
+
+  /* Checkout responsive / Адаптив checkout */
+  @media (max-width: 1023px) {
+    .woocommerce-checkout aside[aria-labelledby="order_review_heading"] {
+      position: static;
+      top: auto;
+    }
+
+    .woocommerce-checkout-review-order-table thead {
+      display: none;
+    }
+
+    .woocommerce-checkout-review-order-table tbody tr.cart_item {
+      display: block;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .woocommerce-checkout-review-order-table tbody tr.cart_item td {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+    }
+
+    .woocommerce-checkout-review-order-table tbody tr.cart_item td.product-total {
+      text-align: left;
+      margin-top: 0.5rem;
+      padding-left: 4.25rem;
+      font-weight: 700;
+    }
+
+    .woocommerce-checkout-review-order-table tfoot tr.cart-subtotal,
+    .woocommerce-checkout-review-order-table tfoot tr.order-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+    }
+
+    .woocommerce-checkout-review-order-table tfoot tr.cart-subtotal th,
+    .woocommerce-checkout-review-order-table tfoot tr.cart-subtotal td,
+    .woocommerce-checkout-review-order-table tfoot tr.order-total th,
+    .woocommerce-checkout-review-order-table tfoot tr.order-total td {
+      display: block;
+      width: auto !important;
+      padding: 0.75rem 0;
+      border: 0;
+    }
+
+    .woocommerce-checkout-review-order-table tfoot tr.cart-subtotal td,
+    .woocommerce-checkout-review-order-table tfoot tr.order-total td {
+      text-align: right;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .woocommerce-checkout .woocommerce-shipping-methods > li label,
+    .woocommerce-checkout #shipping_method > li label {
+      flex-wrap: wrap;
+      align-items: flex-start;
+      padding: 0.75rem;
+    }
+
+  }
+
+  .woocommerce-checkout-review-order-table tfoot .woocommerce-shipping-methods {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .woocommerce-checkout-review-order-table td.product-total {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* Рядок товару з мініатюрою / Line item with thumbnail */
+  .ss-checkout-line-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .ss-checkout-line-item__thumb {
+    flex-shrink: 0;
+  }
+
+  .ss-checkout-item-thumb {
+    display: block;
+    width: 3.5rem;
+    height: 3.5rem;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+  }
+
+  .ss-checkout-line-item__meta {
+    min-width: 0;
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .ss-checkout-line-item__meta .product-quantity {
+    font-weight: 600;
+    color: #6b7280;
+  }
+
+  .woocommerce-checkout-review-order-table .order-total th,
+  .woocommerce-checkout-review-order-table .order-total td {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #111827;
+    border-bottom: 0;
+    padding-top: 1rem;
+  }
+
+  .woocommerce-checkout #payment {
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .woocommerce-checkout #payment ul.payment_methods {
+    border: 1px solid #e5e7eb;
+    border-radius: 0;
+    padding: 0;
+    margin: 0 0 1rem;
+    list-style: none;
+  }
+
+  .woocommerce-checkout #payment ul.payment_methods li {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    margin: 0;
+  }
+
+  .woocommerce-checkout #payment ul.payment_methods li:last-child {
+    border-bottom: 0;
+  }
+
+  .woocommerce-checkout #payment div.payment_box {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0;
+    margin-top: 0.75rem;
+    padding: 1rem;
+    font-size: 0.8125rem;
+    color: #4b5563;
+  }
+
+  .woocommerce-checkout #payment div.form-row.place-order {
+    padding: 0;
+    margin: 0;
+  }
+
+  .woocommerce-checkout textarea#order_comments {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  /* Terms & conditions / Умови продажу */
+  .woocommerce-checkout .woocommerce-terms-and-conditions-wrapper {
+    margin: 1.25rem 0 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .woocommerce-checkout .woocommerce-privacy-policy-text {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: #6b7280;
+  }
+
+  .woocommerce-checkout .woocommerce-privacy-policy-text p {
+    margin: 0;
+  }
+
+  .woocommerce-checkout .woocommerce-privacy-policy-link {
+    color: #111827;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .woocommerce-checkout .woocommerce-privacy-policy-link:hover {
+    color: #000;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions {
+    margin: 0 0 1rem;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: #4b5563;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-wrapper .form-row {
+    margin: 0;
+    padding: 0;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-wrapper label.checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-wrapper input.input-checkbox[name="terms"] {
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0.125rem 0 0;
+    appearance: none;
+    border: 2px solid #d1d5db;
+    border-radius: 0;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s linear, background-color 0.15s linear;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-wrapper input.input-checkbox[name="terms"]:checked {
+    border-color: #000;
+    background-color: #000;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M1 5l3 3 7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 10px 8px;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-wrapper input.input-checkbox[name="terms"]:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-checkbox-text a {
+    color: #111827;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-checkbox-text a:hover {
+    color: #000;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-checkbox-text abbr.required {
     text-decoration: none;
-    transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+    color: #ef4444;
+    border: 0;
+    cursor: help;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-wrapper .woocommerce-invalid label.checkbox {
+    color: #b91c1c;
+  }
+
+  .woocommerce-checkout .woocommerce-terms-and-conditions-wrapper .woocommerce-invalid input.input-checkbox[name="terms"] {
+    border-color: #ef4444;
+  }
+
+  .woocommerce-checkout #payment div.form-row.place-order .ss-btn {
+    margin-top: 1rem;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     Order Received (Thank You) / Сторінка підтвердження замовлення
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  .woocommerce-order .woocommerce-order-details,
+  .woocommerce-order .woocommerce-customer-details {
+    margin-top: 2.5rem;
+  }
+
+  .woocommerce-order .woocommerce-order-details > h2,
+  .woocommerce-order .woocommerce-customer-details > h2,
+  .woocommerce-order .woocommerce-column__title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .woocommerce-order-details table.shop_table,
+  .woocommerce-customer-details table.shop_table {
+    width: 100%;
+    border: none;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0 0 1.5rem;
+  }
+
+  .woocommerce-order-details table.shop_table thead th,
+  .woocommerce-customer-details table.shop_table thead th {
+    font-weight: 600;
+    color: #111827;
+    text-align: left;
+    padding: 0.75rem 0;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+    background: transparent;
+  }
+
+  .woocommerce-order-details table.shop_table tbody th,
+  .woocommerce-order-details table.shop_table tbody td,
+  .woocommerce-order-details table.shop_table tfoot th,
+  .woocommerce-order-details table.shop_table tfoot td,
+  .woocommerce-customer-details table.shop_table tbody th,
+  .woocommerce-customer-details table.shop_table tbody td {
+    padding: 1rem 0;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+    color: #374151;
+    background: transparent;
+  }
+
+  .woocommerce-order-details table.shop_table tbody th,
+  .woocommerce-order-details table.shop_table tfoot th,
+  .woocommerce-customer-details table.shop_table tbody th {
+    font-weight: 600;
+    color: #111827;
+    width: 40%;
+    padding-right: 1rem;
+  }
+
+  .woocommerce-order-details table.shop_table tfoot tr:last-child th,
+  .woocommerce-order-details table.shop_table tfoot tr:last-child td,
+  .woocommerce-order-details table.shop_table tbody tr:last-child th,
+  .woocommerce-order-details table.shop_table tbody tr:last-child td,
+  .woocommerce-customer-details table.shop_table tbody tr:last-child th,
+  .woocommerce-customer-details table.shop_table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .woocommerce-order-details table.shop_table .product-name a,
+  .woocommerce-order-details table.shop_table .product-total .woocommerce-Price-amount {
+    color: #111827;
+    font-weight: 600;
+  }
+
+  .woocommerce-order-details table.shop_table .product-quantity {
+    color: #6b7280;
+    font-weight: 400;
+  }
+
+  .woocommerce-order .woocommerce-customer-details address {
+    font-style: normal;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #374151;
+    border: 1px solid #f3f4f6;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: #f9fafb;
+  }
+
+  .woocommerce-order .woocommerce-columns--addresses {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .woocommerce-order .woocommerce-columns--addresses {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .woocommerce-order .woocommerce-column--billing-address,
+  .woocommerce-order .woocommerce-column--shipping-address {
+    margin: 0;
+  }
+
+  /* Legacy list reset when WC injects order overview elsewhere / Скидання legacy-списку */
+  .woocommerce-order .woocommerce-order-overview li {
+    list-style: none;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     My Account (dashboard, orders, forms) / Особистий кабінет
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  .woocommerce-my-account-wrapper .woocommerce-notices-wrapper .woocommerce-message,
+  .woocommerce-my-account-wrapper .woocommerce-notices-wrapper .woocommerce-info,
+  .woocommerce-my-account-wrapper .woocommerce-notices-wrapper .woocommerce-error {
+    margin-bottom: 0;
+  }
+
+  .woocommerce-MyAccount-content input[type="text"],
+  .woocommerce-MyAccount-content input[type="email"],
+  .woocommerce-MyAccount-content input[type="password"],
+  .woocommerce-MyAccount-content input[type="tel"],
+  .woocommerce-MyAccount-content select,
+  .woocommerce-MyAccount-content textarea,
+  .woocommerce-account form.woocommerce-form-login input[type="text"],
+  .woocommerce-account form.woocommerce-form-login input[type="email"],
+  .woocommerce-account form.woocommerce-form-login input[type="password"] {
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #111827;
+  }
+
+  .woocommerce-MyAccount-content input[type="text"]:focus,
+  .woocommerce-MyAccount-content input[type="email"]:focus,
+  .woocommerce-MyAccount-content input[type="password"]:focus,
+  .woocommerce-MyAccount-content input[type="tel"]:focus,
+  .woocommerce-MyAccount-content select:focus,
+  .woocommerce-MyAccount-content textarea:focus,
+  .woocommerce-account form.woocommerce-form-login input[type="text"]:focus,
+  .woocommerce-account form.woocommerce-form-login input[type="email"]:focus,
+  .woocommerce-account form.woocommerce-form-login input[type="password"]:focus {
+    outline: none;
+    border-color: #000;
+    box-shadow: 0 0 0 1px #000;
+  }
+
+  .woocommerce-MyAccount-content .button,
+  .woocommerce-account form.woocommerce-form-login .button {
+    background-color: var(--ss-btn-bg);
+    color: var(--ss-btn-color);
+    font-weight: 700;
+    padding: var(--ss-btn-padding-y) var(--ss-btn-padding-x);
+    border-radius: var(--ss-btn-radius);
+    border: 1px solid var(--ss-btn-border);
+    transition: background-color 0.15s linear, border-color 0.15s linear, color 0.15s linear;
+    display: inline-block;
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 1.5;
+  }
+
+  .woocommerce-MyAccount-content .button:hover,
+  .woocommerce-account form.woocommerce-form-login .button:hover,
+  .woocommerce-account form.woocommerce-form-register .button:hover {
+    background-color: var(--ss-btn-bg-hover);
+    border-color: var(--ss-btn-border-hover);
+    color: var(--ss-btn-color);
+  }
+
+  /* Guest login / register — two-column auth layout / Двоколонковий вхід і реєстрація */
+  .solidshop-account-auth__heading {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 1.5rem;
+    line-height: 1.3;
+  }
+
+  .solidshop-account-auth .woocommerce-form-row {
+    margin-bottom: 1.25rem;
+  }
+
+  .solidshop-account-auth label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .solidshop-account-auth .required {
+    color: #ef4444;
+  }
+
+  .solidshop-account-auth input[type="text"],
+  .solidshop-account-auth input[type="email"],
+  .solidshop-account-auth input[type="password"],
+  .solidshop-account-auth .password-input .input-text {
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #111827;
+  }
+
+  .solidshop-account-auth input:focus {
+    outline: none;
+    border-color: #000;
+    box-shadow: 0 0 0 1px #000;
+  }
+
+  .solidshop-account-auth .password-input {
+    position: relative;
+    display: block;
+  }
+
+  .solidshop-account-auth .password-input .input-text {
+    padding-right: 2.75rem;
+  }
+
+  .solidshop-account-auth .show-password-input {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.55;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1.25rem 1.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z'/%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'/%3E%3C/svg%3E");
+  }
+
+  .solidshop-account-auth .show-password-input.display-password {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88'/%3E%3C/svg%3E");
+  }
+
+  .solidshop-account-auth .show-password-input:hover {
+    opacity: 1;
+  }
+
+  .solidshop-account-auth__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .solidshop-account-auth .woocommerce-form-login__rememberme {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.875rem;
+    color: #374151;
     cursor: pointer;
   }
 
-  .related.products ul.products li.product .button:hover,
-  .upsells.products ul.products li.product .button:hover {
-    background-color: #1d4ed8;
-    border-color: #1d4ed8;
+  .solidshop-account-auth .woocommerce-form-login__rememberme input {
+    width: auto;
+    margin: 0;
+  }
+
+  .solidshop-account-auth .woocommerce-form-login__submit,
+  .solidshop-account-auth .woocommerce-form-register__submit,
+  .solidshop-account-auth .woocommerce-form-lost-password__submit,
+  .solidshop-account-auth .woocommerce-form-reset-password__submit,
+  .solidshop-account-auth form.lost_reset_password .button {
+    background-color: var(--ss-btn-bg);
+    color: var(--ss-btn-color);
+    font-weight: 700;
+    font-size: var(--ss-btn-font-size);
+    letter-spacing: var(--ss-btn-letter-spacing);
+    padding: var(--ss-btn-padding-y) var(--ss-btn-padding-x);
+    border-radius: var(--ss-btn-radius);
+    border: 1px solid var(--ss-btn-border);
+    cursor: pointer;
+    transition: background-color 0.15s linear, border-color 0.15s linear, color 0.15s linear;
+    line-height: 1.5;
+  }
+
+  .solidshop-account-auth .woocommerce-form-login__submit:hover,
+  .solidshop-account-auth .woocommerce-form-register__submit:hover,
+  .solidshop-account-auth .woocommerce-form-lost-password__submit:hover,
+  .solidshop-account-auth .woocommerce-form-reset-password__submit:hover,
+  .solidshop-account-auth form.lost_reset_password .button:hover {
+    background-color: var(--ss-btn-bg-hover);
+    border-color: var(--ss-btn-border-hover);
+    color: var(--ss-btn-color);
+  }
+
+  .solidshop-account-auth .woocommerce-LostPassword {
+    margin: 1rem 0 0;
+    font-size: 0.875rem;
+  }
+
+  .solidshop-account-auth .woocommerce-LostPassword a,
+  .solidshop-account-auth__back-link,
+  .solidshop-account-auth .woocommerce-privacy-policy-text a {
+    color: var(--ss-btn-bg);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 600;
+  }
+
+  .solidshop-account-auth .woocommerce-LostPassword a:hover,
+  .solidshop-account-auth__back-link:hover,
+  .solidshop-account-auth .woocommerce-privacy-policy-text a:hover {
+    color: var(--ss-btn-bg-hover);
+  }
+
+  .solidshop-account-auth__intro {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: #4b5563;
+    margin: 0 0 1.25rem;
+  }
+
+  .solidshop-account-auth__back-link-wrap {
+    margin: 1.5rem 0 0;
+    font-size: 0.875rem;
+  }
+
+  .solidshop-account-auth__back-link {
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .solidshop-account-auth__back-link:hover {
+    text-decoration: underline;
+  }
+
+  .solidshop-account-auth__confirmation .woocommerce-message {
+    margin-bottom: 1rem;
+  }
+
+  /* Edit account form / Форма редагування облікового запису */
+  .solidshop-edit-account .woocommerce-form-row {
+    margin-bottom: 1.25rem;
+  }
+
+  .solidshop-edit-account label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .solidshop-edit-account__hint {
+    display: block;
+    margin-top: 0.375rem;
+    font-size: 0.8125rem;
+    color: #6b7280;
+  }
+
+  .solidshop-edit-account__password {
+    border: 1px solid #e5e7eb;
+    margin: 1.5rem 0;
+    padding: 1.25rem 1.25rem 0.25rem;
+  }
+
+  .solidshop-edit-account__password legend {
+    color: #111827;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    padding: 0 0.375rem;
+  }
+
+  .solidshop-edit-account .password-input {
+    position: relative;
+    display: block;
+  }
+
+  .solidshop-edit-account .password-input .input-text {
+    padding-right: 2.75rem;
+  }
+
+  .solidshop-edit-account .show-password-input {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.55;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1.25rem 1.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z'/%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'/%3E%3C/svg%3E");
+  }
+
+  .solidshop-edit-account .show-password-input.display-password {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88'/%3E%3C/svg%3E");
+  }
+
+  .solidshop-edit-account .show-password-input:hover {
+    opacity: 1;
+  }
+
+  .solidshop-edit-account__submit {
+    margin-top: 0.5rem;
+  }
+
+  .solidshop-edit-account__submit .button {
+    background-color: var(--ss-btn-bg);
+    border: 1px solid var(--ss-btn-border);
+    border-radius: var(--ss-btn-radius);
+    color: var(--ss-btn-color);
+    cursor: pointer;
+    font-size: var(--ss-btn-font-size);
+    font-weight: 700;
+    letter-spacing: var(--ss-btn-letter-spacing);
+    padding: var(--ss-btn-padding-y) var(--ss-btn-padding-x);
+    transition: background-color 0.15s linear, border-color 0.15s linear, color 0.15s linear;
+  }
+
+  .solidshop-edit-account__submit .button:hover {
+    background-color: var(--ss-btn-bg-hover);
+    border-color: var(--ss-btn-border-hover);
+    color: var(--ss-btn-color);
+  }
+
+  .solidshop-account-auth__hint,
+  .solidshop-account-auth .woocommerce-privacy-policy-text {
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: #6b7280;
+    margin: 0 0 1.25rem;
+  }
+
+  .woocommerce-account .woocommerce-notices-wrapper {
+    max-width: 80rem;
+    margin: 0 auto 1rem;
+    padding: 0 1rem;
+  }
+
+  .woocommerce-account:not(.logged-in) .woocommerce-notices-wrapper {
+    padding-top: 0.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .woocommerce-account .woocommerce-notices-wrapper {
+      padding: 0 1.5rem;
+    }
+  }
+
+  .woocommerce-MyAccount-content table.shop_table {
+    width: 100%;
+    border: none;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0 0 1.5rem;
+  }
+
+  .woocommerce-MyAccount-content table.shop_table thead th {
+    font-weight: 600;
+    color: #111827;
+    text-align: left;
+    padding: 0.75rem 1rem 0.75rem 0;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+    background: transparent;
+  }
+
+  .woocommerce-MyAccount-content table.shop_table tbody th,
+  .woocommerce-MyAccount-content table.shop_table tbody td,
+  .woocommerce-MyAccount-content table.shop_table tfoot th,
+  .woocommerce-MyAccount-content table.shop_table tfoot td {
+    text-align: left;
+    padding: 1rem 1rem 1rem 0;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+    color: #374151;
+    background: transparent;
+  }
+
+  .woocommerce-MyAccount-content table.shop_table tbody tr:last-child th,
+  .woocommerce-MyAccount-content table.shop_table tbody tr:last-child td,
+  .woocommerce-MyAccount-content table.shop_table tfoot tr:last-child th,
+  .woocommerce-MyAccount-content table.shop_table tfoot tr:last-child td {
+    border-bottom: none;
+  }
+
+  .woocommerce-MyAccount-content table.shop_table .button,
+  .woocommerce-MyAccount-content table.shop_table a.button {
+    font-size: 0.8125rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .woocommerce-MyAccount-content .woocommerce-orders-table__cell-order-actions .button + .button {
+    margin-left: 0.5rem;
+  }
+
+  .woocommerce-MyAccount-content h2,
+  .woocommerce-MyAccount-content h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 1rem;
+  }
+
+  .woocommerce-MyAccount-content .woocommerce-Address-title h3 {
+    margin-bottom: 0.5rem;
+  }
+
+  .woocommerce-MyAccount-content .woocommerce-address-fields .form-row,
+  .woocommerce-MyAccount-content .woocommerce-EditAccountForm .form-row,
+  .woocommerce-MyAccount-content fieldset {
+    margin-bottom: 1rem;
+  }
+
+  .woocommerce-MyAccount-content label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.375rem;
+  }
+
+  .woocommerce-MyAccount-navigation-link a:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     Wishlist / Обране
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  .js-wishlist-toggle {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    line-height: 0;
+  }
+
+  .js-wishlist-toggle:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+
+  .js-wishlist-toggle[aria-disabled='true'] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .js-wishlist-toggle.is-in-wishlist .js-wishlist-icon-path {
+    fill: currentColor;
+  }
+
+  .js-wishlist-toggle:not(.is-in-wishlist) .js-wishlist-icon-path {
+    fill: none;
+  }
+
+  @keyframes wishlist-pop {
+    0% {
+      transform: scale(1);
+    }
+
+    45% {
+      transform: scale(1.28);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .js-wishlist-toggle.is-pop {
+    animation: wishlist-pop 0.28s ease-out;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     Quick Buy modal / Модалка швидкої покупки
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  .quick-buy-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  body.quick-buy-modal-open {
+    overflow: hidden;
+  }
+
+  .quick-buy-modal__spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 2px solid #e5e7eb;
+    border-top-color: #111827;
+    border-radius: 9999px;
+    animation: quick-buy-spin 0.7s linear infinite;
+  }
+
+  @keyframes quick-buy-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .quick-buy-modal__form .single_add_to_cart_button {
+    border-radius: 0;
+    background: #111827;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .quick-buy-modal__form .single_add_to_cart_button:hover {
+    background: #1f2937;
+  }
+
+  .quick-buy-modal__form .quantity {
+    border-radius: 0;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     Mini-cart drawer / Спливаючий боковий кошик
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  .mini-cart-root {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .mini-cart__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .mini-cart__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .mini-cart__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem;
+    margin: -0.375rem -0.375rem -0.375rem 0;
+    color: #9ca3af;
+    background: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: color 0.15s linear, background-color 0.15s linear;
+  }
+
+  .mini-cart__close:hover {
+    color: #374151;
+    background: #f9fafb;
+  }
+
+  .mini-cart__progress {
+    padding: 1rem 1.5rem 0;
+    flex-shrink: 0;
+  }
+
+  .mini-cart__progress-track {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 9999px;
+    overflow: hidden;
+    margin-bottom: 0.625rem;
+  }
+
+  .mini-cart__progress-fill {
+    display: block;
+    height: 100%;
+    background: #111827;
+    border-radius: 9999px;
+    transition: width 0.3s ease;
+  }
+
+  .mini-cart__progress-text {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .mini-cart__progress-text strong {
+    color: #111827;
+    font-weight: 700;
+  }
+
+  .mini-cart__scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem 1.5rem;
+  }
+
+  .mini-cart__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mini-cart__item + .mini-cart__item {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #f3f4f6;
+  }
+
+  .mini-cart__item-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .mini-cart__item-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mini-cart__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.125rem;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.15s linear;
+  }
+
+  .mini-cart__remove:hover {
+    color: #ef4444;
+  }
+
+  .mini-cart__remove svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .mini-cart__item-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mini-cart__item-name {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #111827;
+    line-height: 1.35;
+    text-decoration: none;
+    margin-bottom: 0.25rem;
+  }
+
+  .mini-cart__item-name:hover {
+    color: #374151;
+  }
+
+  .mini-cart__item-price {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.625rem;
+  }
+
+  .mini-cart__item-price .woocommerce-Price-amount {
+    font-weight: 700;
+  }
+
+  .mini-cart__item .variation {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+
+  .mini-cart__qty {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .mini-cart__qty-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    font-size: 1.125rem;
+    line-height: 1;
+    color: #374151;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    transition: background-color 0.15s linear;
+  }
+
+  .mini-cart__qty-btn:hover {
+    background: #f9fafb;
+  }
+
+  .mini-cart__qty-value {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    padding: 0 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    border-left: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+  }
+
+  .mini-cart__thumb {
+    flex-shrink: 0;
+    width: 4.5rem;
+    height: 5.5rem;
+    overflow: hidden;
+    border-radius: 0.25rem;
+    background: #f9fafb;
+  }
+
+  .mini-cart__thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .mini-cart__upsells {
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f3f4f6;
+  }
+
+  .mini-cart__upsells-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 1rem;
+  }
+
+  .mini-cart__upsell-card {
+    display: grid;
+    grid-template-columns: 4rem 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: #fff;
+  }
+
+  .mini-cart__upsell-thumb {
+    display: block;
+    width: 4rem;
+    height: 4rem;
+    overflow: hidden;
+    border-radius: 0.25rem;
+    background: #f9fafb;
+  }
+
+  .mini-cart__upsell-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .mini-cart__upsell-info {
+    min-width: 0;
+  }
+
+  .mini-cart__upsell-name {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #111827;
+    text-decoration: none;
+    line-height: 1.35;
+    margin-bottom: 0.125rem;
+  }
+
+  .mini-cart__upsell-name:hover {
+    color: #374151;
+  }
+
+  .mini-cart__upsell-price {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #d97706;
+  }
+
+  .mini-cart__upsell-price .woocommerce-Price-amount {
+    font-weight: 700;
+    color: #d97706;
+  }
+
+  .mini-cart__upsell-add {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #374151;
+    white-space: nowrap;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    transition: background-color 0.15s linear, border-color 0.15s linear;
+  }
+
+  .mini-cart__upsell-add:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+
+  .mini-cart__upsell-add.is-loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .mini-cart__upsells-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+  }
+
+  .mini-cart__upsells-dots {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .mini-cart__upsells-dot {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background: #d1d5db;
+    transition: background-color 0.15s linear;
+  }
+
+  .mini-cart__upsells-dot.is-active {
+    background: #111827;
+  }
+
+  .mini-cart__upsells-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .mini-cart__upsells-nav button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    color: #6b7280;
+    background: transparent;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: color 0.15s linear, background-color 0.15s linear;
+  }
+
+  .mini-cart__upsells-nav button:hover {
+    color: #111827;
+    background: #f3f4f6;
+  }
+
+  .mini-cart__footer {
+    flex-shrink: 0;
+    padding: 1rem 1.5rem 1.5rem;
+    border-top: 1px solid #f3f4f6;
+    background: #fff;
+  }
+
+  .mini-cart__subtotal {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .mini-cart__subtotal-label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .mini-cart__subtotal-value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .mini-cart__subtotal-value .woocommerce-Price-amount {
+    font-weight: 800;
+  }
+
+  .mini-cart__checkout {
+    width: 100%;
+    border-radius: 0.375rem !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    font-size: 0.875rem !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    gap: 0.5rem !important;
+  }
+
+  .mini-cart__checkout svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .mini-cart__empty-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+
+  .mini-cart__empty {
+    font-size: 0.9375rem;
+    color: #6b7280;
+    margin: 0 0 1.25rem;
+  }
+
+  .mini-cart__shop-link {
+    border-radius: 0.375rem !important;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     Cart page — premium B2B layout / Сторінка кошика
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  .solidshop-cart-page .woocommerce-notices-wrapper {
+    margin-bottom: 1.5rem;
+  }
+
+  /* Empty cart / Порожній кошик */
+  .solidshop-cart-page--empty .cart-empty.woocommerce-info {
+    display: none;
+  }
+
+  .solidshop-cart-page--empty .woocommerce-notices-wrapper {
+    max-width: 42rem;
+    margin-inline: auto;
+    margin-bottom: 2rem;
+  }
+
+  .solidshop-cart-page--empty .woocommerce-notices-wrapper .woocommerce-message,
+  body.solidshop-cart-empty-page .woocommerce-notices-wrapper .woocommerce-message {
+    background: #111827;
+    color: #fff;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .solidshop-cart-page--empty .woocommerce-notices-wrapper .woocommerce-message a,
+  body.solidshop-cart-empty-page .woocommerce-notices-wrapper .woocommerce-message a {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .solidshop-cart-page--empty .woocommerce-notices-wrapper .woocommerce-message a:hover,
+  body.solidshop-cart-empty-page .woocommerce-notices-wrapper .woocommerce-message a:hover {
+    color: #f3f4f6;
+  }
+
+  .solidshop-cart-empty {
+    padding: 3rem 0 4rem;
+  }
+
+  @media (min-width: 1024px) {
+    .solidshop-cart-empty {
+      padding: 4rem 0 5rem;
+    }
+  }
+
+  .solidshop-cart-empty__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1.75rem;
+    max-width: 36rem;
+    margin-inline: auto;
+  }
+
+  .solidshop-cart-empty__icon {
+    color: #d1d5db;
+    line-height: 0;
+  }
+
+  .solidshop-cart-empty__icon svg {
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .solidshop-cart-empty__icon svg {
+      width: 7.5rem;
+      height: 7.5rem;
+    }
+  }
+
+  .solidshop-cart-empty__title {
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #111827;
+  }
+
+  @media (min-width: 768px) {
+    .solidshop-cart-empty__title {
+      font-size: 2rem;
+    }
+  }
+
+  .solidshop-cart-empty__btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding: var(--ss-btn-padding-y) 2rem !important;
+    border: 1px solid var(--ss-btn-border) !important;
+    border-radius: var(--ss-btn-radius) !important;
+    background: var(--ss-btn-bg) !important;
+    color: var(--ss-btn-color) !important;
+    font-size: var(--ss-btn-font-size) !important;
+    font-weight: 700 !important;
+    letter-spacing: var(--ss-btn-letter-spacing);
+    text-decoration: none !important;
+    text-transform: none !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .solidshop-cart-empty__btn:hover {
+    background: var(--ss-btn-bg-hover) !important;
+    border-color: var(--ss-btn-border-hover) !important;
+    color: var(--ss-btn-color) !important;
+  }
+
+  .solidshop-cart-page--empty .return-to-shop {
+    display: none;
+  }
+
+  .solidshop-cart-page--empty .wc-empty-cart-message {
+    display: none;
+  }
+
+  /* Checkout steps / Кроки оформлення */
+  .solidshop-checkout-steps {
+    margin-bottom: 0;
+  }
+
+  .solidshop-checkout-steps__list {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 56rem;
+    margin-inline: auto;
+  }
+
+  .solidshop-checkout-steps__item {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    text-align: center;
+    padding-bottom: 0.25rem;
+  }
+
+  /* Connector track between step markers / З’єднувальна лінія між кроками */
+  .solidshop-checkout-steps__item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 1rem;
+    left: calc(50% + 1.25rem);
+    width: calc(100% - 2.5rem);
+    height: 2px;
+    background: #e5e7eb;
+    z-index: 0;
+  }
+
+  .solidshop-checkout-steps__marker {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: none;
+    background: #e5e7eb;
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .solidshop-checkout-steps__label {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: #9ca3af;
+    font-weight: 500;
+    max-width: 8.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .solidshop-checkout-steps__label {
+      font-size: 0.8125rem;
+      max-width: none;
+    }
+  }
+
+  .solidshop-checkout-steps__item.is-upcoming .solidshop-checkout-steps__marker {
+    background: #e5e7eb;
     color: #fff;
   }
 
-  /* mt-auto штовхає кнопку вниз картки / mt-auto pushes button to card bottom */
-  .related.products ul.products li.product .button,
-  .upsells.products ul.products li.product .button {
-    margin-top: auto;
+  .solidshop-checkout-steps__item.is-upcoming .solidshop-checkout-steps__label {
+    color: #9ca3af;
+    font-weight: 500;
   }
 
+  .solidshop-checkout-steps__item.is-active .solidshop-checkout-steps__marker {
+    background: #111827;
+    color: #fff;
+  }
+
+  .solidshop-checkout-steps__item.is-active .solidshop-checkout-steps__label {
+    color: #111827;
+    font-weight: 700;
+  }
+
+  .solidshop-checkout-steps__item.is-complete .solidshop-checkout-steps__marker {
+    background: #111827;
+    color: #fff;
+  }
+
+  .solidshop-checkout-steps__item.is-complete .solidshop-checkout-steps__label {
+    color: #111827;
+    font-weight: 700;
+  }
+
+  .solidshop-checkout-steps__item.is-complete:not(:last-child)::after {
+    background: #22c55e;
+  }
+
+  /* Checkout login reminder — black bar / Банер «Постійний клієнт» */
+  .solidshop-checkout-page .woocommerce-form-login-toggle {
+    margin-top: 1.5rem;
+  }
+
+  .solidshop-checkout-page .woocommerce-form-login-toggle .woocommerce-info {
+    background: #111827;
+    color: #fff;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1rem 1.25rem;
+    margin: 0 0 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .solidshop-checkout-page .woocommerce-form-login-toggle .woocommerce-info a {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .solidshop-checkout-page .woocommerce-form-login-toggle .woocommerce-info a:hover {
+    color: #f3f4f6;
+  }
+
+  /* Cart table header / Заголовок таблиці */
+  .solidshop-cart-table__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0;
+  }
+
+  .solidshop-cart-table__head-product,
+  .solidshop-cart-table__head-total {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b7280;
+  }
+
+  /* Cart line item / Рядок товару */
+  .solidshop-cart-item {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas:
+      "remove media details total";
+    gap: 1rem 1.25rem;
+    align-items: start;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  @media (max-width: 639px) {
+    .solidshop-cart-item {
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas:
+        "remove media total"
+        "remove details details";
+    }
+  }
+
+  .solidshop-cart-item__remove {
+    grid-area: remove;
+    padding-top: 0.25rem;
+  }
+
+  .solidshop-cart-item__remove-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #9ca3af;
+    transition: color 0.15s linear;
+  }
+
+  .solidshop-cart-item__remove-link:hover {
+    color: #111827;
+  }
+
+  .solidshop-cart-item__remove-link svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .solidshop-cart-item__media {
+    grid-area: media;
+    width: 5rem;
+    flex-shrink: 0;
+  }
+
+  .solidshop-cart-item__img {
+    width: 5rem !important;
+    height: 5rem !important;
+    object-fit: cover;
+    border-radius: 0;
+  }
+
+  .solidshop-cart-item__details {
+    grid-area: details;
+    min-width: 0;
+  }
+
+  .solidshop-cart-item__title {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.4;
+    margin-bottom: 0.375rem;
+    text-decoration: none;
+  }
+
+  .solidshop-cart-item__title:hover {
+    color: #374151;
+  }
+
+  .solidshop-cart-item__price {
+    font-size: 0.875rem;
+    color: #374151;
+    margin-bottom: 0.375rem;
+  }
+
+  .solidshop-cart-item__price del {
+    color: #9ca3af;
+    margin-right: 0.375rem;
+  }
+
+  .solidshop-cart-item__price ins {
+    text-decoration: none;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .solidshop-cart-item__meta {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+  }
+
+  .solidshop-cart-item__meta dl {
+    margin: 0;
+  }
+
+  .solidshop-cart-item__meta p {
+    margin: 0;
+  }
+
+  .solidshop-cart-item__qty .quantity {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid #d1d5db;
+    border-radius: 0;
+    overflow: hidden;
+    max-width: 5.5rem;
+    height: 1.75rem;
+  }
+
+  .solidshop-cart-item__qty .quantity .qty-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    min-height: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .solidshop-cart-item__qty .quantity .qty-btn svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .solidshop-cart-item__qty .quantity .qty-btn--minus {
+    border-right: 1px solid #d1d5db;
+  }
+
+  .solidshop-cart-item__qty .quantity .qty-btn--plus {
+    border-left: 1px solid #d1d5db;
+  }
+
+  .solidshop-cart-item__qty .quantity .qty {
+    width: 2rem;
+    min-height: 1.75rem;
+    height: 1.75rem;
+    border: 0;
+    border-left: 1px solid #d1d5db;
+    border-right: 1px solid #d1d5db;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.75rem;
+    color: #111827;
+    background: #fff;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    padding: 0;
+  }
+
+  .solidshop-cart-item__qty .quantity .qty::-webkit-outer-spin-button,
+  .solidshop-cart-item__qty .quantity .qty::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .solidshop-cart-item__total {
+    grid-area: total;
+    text-align: right;
+    min-width: 5.5rem;
+  }
+
+  .solidshop-cart-item__total-value {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .solidshop-cart-item__save-badge {
+    display: inline-block;
+    margin-top: 0.375rem;
+    padding: 0.125rem 0.375rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #374151;
+    background: #f3f4f6;
+    border-radius: 0;
+  }
+
+  /* Free shipping progress / Прогрес безкоштовної доставки */
+  .solidshop-cart-progress {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .solidshop-cart-progress__track {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 0;
+    overflow: hidden;
+    margin-bottom: 0.875rem;
+  }
+
+  .solidshop-cart-progress__fill {
+    display: block;
+    height: 100%;
+    min-width: 0;
+    background: #22c55e;
+    border-radius: 0;
+    transition: width 0.35s ease;
+  }
+
+  .solidshop-cart-progress__track[aria-valuenow]:not([aria-valuenow="0"]) .solidshop-cart-progress__fill {
+    min-width: 4px;
+  }
+
+  .solidshop-cart-progress__text {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .solidshop-cart-progress__text strong {
+    color: #111827;
+    font-weight: 700;
+  }
+
+  .solidshop-cart-progress__link {
+    margin-left: 0.25rem;
+    color: #111827;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .solidshop-cart-progress__link:hover {
+    color: #374151;
+  }
+
+  /* Coupon row / Купон */
+  .solidshop-cart-coupon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .solidshop-cart-coupon__input {
+    flex: 1 1 12rem;
+    min-height: 2.75rem;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0;
+    font-size: 0.875rem;
+    color: #111827;
+    background: #fff;
+  }
+
+  .solidshop-cart-coupon__input::placeholder {
+    color: #9ca3af;
+  }
+
+  .solidshop-cart-coupon__btn {
+    min-height: 2.75rem;
+    padding: 0.625rem 1.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0;
+    background: #fff;
+    color: #111827;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s linear, border-color 0.15s linear;
+  }
+
+  .solidshop-cart-coupon__btn:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+
+  /* Info blocks / Інфо-блоки */
+  .solidshop-cart-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  @media (min-width: 768px) {
+    .solidshop-cart-info {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .solidshop-cart-info__title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem;
+  }
+
+  .solidshop-cart-info__text {
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  /* Sidebar totals / Підсумки */
+  .solidshop-cart-collaterals .cart_totals {
+    width: 100%;
+    float: none;
+  }
+
+  .solidshop-cart-totals {
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 0;
+  }
+
+  .solidshop-cart-totals__title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #111827;
+    margin: 0 0 1.25rem;
+    padding: 0;
+  }
+
+  .solidshop-cart-totals__summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0;
+  }
+
+  .solidshop-cart-totals__row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .solidshop-cart-totals__summary .solidshop-cart-totals__row:last-child {
+    border-bottom: 0;
+  }
+
+  .solidshop-cart-totals__label {
+    flex: 1 1 auto;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    line-height: 1.45;
+  }
+
+  .solidshop-cart-totals__value {
+    flex: 0 0 auto;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .solidshop-cart-totals__row--total {
+    margin-top: 0.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 0;
+  }
+
+  .solidshop-cart-totals__row--total .solidshop-cart-totals__label,
+  .solidshop-cart-totals__row--total .solidshop-cart-totals__value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  /* Shipping block / Блок доставки */
+  .solidshop-cart-shipping {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .solidshop-cart-shipping__header {
+    margin-bottom: 1rem;
+  }
+
+  .solidshop-cart-shipping__title {
+    margin: 0 0 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #111827;
+  }
+
+  .solidshop-cart-shipping__destination {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: #6b7280;
+  }
+
+  .solidshop-cart-shipping__destination strong {
+    color: #374151;
+    font-weight: 600;
+  }
+
+  .solidshop-cart-shipping__methods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .solidshop-cart-shipping__method {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .solidshop-cart-shipping__method .shipping_method {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .solidshop-cart-shipping__label {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.875rem 1rem;
+    margin: 0;
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s linear, background-color 0.15s linear, box-shadow 0.15s linear;
+  }
+
+  .solidshop-cart-shipping__label::before {
+    content: "";
+    order: -1;
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-right: 0.25rem;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    background: #fff;
+    transition: border-color 0.15s linear, box-shadow 0.15s linear;
+  }
+
+  .solidshop-cart-shipping__name {
+    flex: 1 1 auto;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #111827;
+    text-align: left;
+  }
+
+  .solidshop-cart-shipping__price {
+    flex: 0 0 auto;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #111827;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .solidshop-cart-shipping__price.is-free {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #15803d;
+    font-weight: 700;
+  }
+
+  .solidshop-cart-shipping__price:not(.is-free) {
+    color: #374151;
+    font-weight: 600;
+  }
+
+  .solidshop-cart-shipping__method .shipping_method:checked + .solidshop-cart-shipping__label {
+    border-color: #111827;
+    background: #fafafa;
+    box-shadow: 0 0 0 1px #111827;
+  }
+
+  .solidshop-cart-shipping__method .shipping_method:checked + .solidshop-cart-shipping__label::before {
+    border-color: #111827;
+    box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 999px #111827;
+  }
+
+  .solidshop-cart-shipping__method .shipping_method:focus-visible + .solidshop-cart-shipping__label {
+    outline: 2px solid #111827;
+    outline-offset: 2px;
+  }
+
+  .solidshop-cart-shipping__method.is-single .solidshop-cart-shipping__label {
+    border-color: #111827;
+    background: #fafafa;
+    box-shadow: 0 0 0 1px #111827;
+  }
+
+  .solidshop-cart-shipping__method.is-single .solidshop-cart-shipping__label::before {
+    border-color: #111827;
+    box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 999px #111827;
+  }
+
+  .solidshop-cart-shipping__note,
+  .solidshop-cart-shipping__empty {
+    margin: 0.875rem 0 0;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: #6b7280;
+  }
+
+  .solidshop-cart-totals__table {
+    display: none;
+  }
+
+  .solidshop-cart-totals__checkout {
+    margin: 1.25rem 0 0;
+    padding: 0;
+  }
+
+  .solidshop-cart-checkout-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--ss-btn-padding-y) var(--ss-btn-padding-x) !important;
+    border: 1px solid var(--ss-btn-border) !important;
+    border-radius: var(--ss-btn-radius) !important;
+    background: var(--ss-btn-bg) !important;
+    color: var(--ss-btn-color) !important;
+    font-size: var(--ss-btn-font-size) !important;
+    font-weight: 700 !important;
+    letter-spacing: var(--ss-btn-letter-spacing);
+    text-transform: none !important;
+    text-decoration: none !important;
+    transition: background 0.15s linear, border-color 0.15s linear;
+  }
+
+  .solidshop-cart-checkout-btn:hover {
+    background: var(--ss-btn-bg-hover) !important;
+    border-color: var(--ss-btn-border-hover) !important;
+    color: var(--ss-btn-color) !important;
+  }
+
+  .solidshop-cart-checkout-btn__icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .solidshop-cart-form .solidshop-cart-update.hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+@layer components {
+  /* Blog single post typography — lightweight prose substitute */
+  /* Типографіка single post — легка заміна prose */
+  .blog-prose {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  .blog-prose > * + * {
+    margin-top: 1.25rem;
+  }
+
+  .blog-prose h2 {
+    color: #111827;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-top: 2rem;
+  }
+
+  .blog-prose h3 {
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-top: 1.75rem;
+  }
+
+  .blog-prose p {
+    color: #374151;
+  }
+
+  .blog-prose a {
+    color: #111827;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .blog-prose a:hover {
+    color: var(--ss-btn-bg);
+  }
+
+  .blog-prose ul,
+  .blog-prose ol {
+    color: #374151;
+    padding-left: 1.5rem;
+  }
+
+  .blog-prose ul {
+    list-style: disc;
+  }
+
+  .blog-prose ol {
+    list-style: decimal;
+  }
+
+  .blog-prose li + li {
+    margin-top: 0.5rem;
+  }
+
+  .blog-prose img {
+    border: 1px solid #e5e7eb;
+    border-radius: 0;
+    display: block;
+    height: auto;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .blog-prose blockquote {
+    border-left: 3px solid #d1d5db;
+    color: #374151;
+    font-style: normal;
+    font-weight: 600;
+    margin-left: 0;
+    padding-left: 1.25rem;
+  }
+
+  .blog-prose blockquote p {
+    font-weight: 600;
+  }
+
+  .blog-prose blockquote cite,
+  .blog-prose blockquote ul {
+    color: #6b7280;
+    font-size: 0.9375rem;
+    font-style: normal;
+    font-weight: 400;
+    list-style: none;
+    margin-top: 0.75rem;
+    padding-left: 0;
+  }
+
+  .blog-prose figure {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .blog-prose figcaption {
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-style: italic;
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+
+  .blog-prose table {
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    width: 100%;
+  }
+
+  .blog-prose table td,
+  .blog-prose table th {
+    border: 1px solid #e5e7eb;
+    padding: 0.625rem 0.875rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .blog-prose table thead td {
+    background-color: #f9fafb;
+    font-weight: 700;
+  }
+
+  .blog-prose pre,
+  .blog-prose .wp-block-code {
+    background-color: #111827;
+    color: #f3f4f6;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    padding: 1rem 1.25rem;
+  }
+
+  .blog-prose pre code {
+    background: transparent;
+    color: inherit;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    white-space: pre;
+  }
+
+  /* Blog single post — title, mentioned products, comments */
+  /* Single post — заголовок, згадані товари, коментарі */
+  .blog-single__title {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+
+  .blog-mentioned__heading {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+
+  .blog-mentioned__badge {
+    background-color: #22c55e;
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    padding: 0.375rem 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .blog-mentioned__rating .star-rating {
+    font-size: 0.75rem;
+  }
+
+  .blog-mentioned__rating .star-rating span {
+    color: #111827;
+  }
+
+  .blog-comment-form__title {
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+  }
+
+  .blog-comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .blog-comment-form label {
+    color: #374151;
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.375rem;
+  }
+
+  .blog-comment-form textarea,
+  .blog-comment-form input[type="text"],
+  .blog-comment-form input[type="email"],
+  .blog-comment-form input[type="url"] {
+    border: 1px solid #d1d5db;
+    border-radius: 0;
+    color: #111827;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    padding: 0.75rem 0.875rem;
+    width: 100%;
+  }
+
+  .blog-comment-form textarea:focus,
+  .blog-comment-form input[type="text"]:focus,
+  .blog-comment-form input[type="email"]:focus,
+  .blog-comment-form input[type="url"]:focus {
+    border-color: #111827;
+    outline: none;
+  }
+
+  .blog-comment-form__fields-row {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .blog-comment-form .comment-form-author,
+    .blog-comment-form .comment-form-email {
+      display: inline-block;
+      margin: 0;
+      vertical-align: top;
+      width: calc(50% - 0.5rem);
+    }
+
+    .blog-comment-form .comment-form-author {
+      margin-right: 1rem;
+    }
+  }
+
+  .blog-comment-form__submit,
+  .blog-comments .blog-comment-form__submit {
+    background-color: var(--ss-btn-bg) !important;
+    border: 1px solid var(--ss-btn-border) !important;
+    border-radius: var(--ss-btn-radius) !important;
+    color: var(--ss-btn-color) !important;
+    cursor: pointer;
+    font-size: var(--ss-btn-font-size);
+    font-weight: 700;
+    letter-spacing: var(--ss-btn-letter-spacing);
+    padding: var(--ss-btn-padding-y) var(--ss-btn-padding-x);
+    text-transform: none;
+    transition: background-color 0.15s linear, border-color 0.15s linear, color 0.15s linear;
+  }
+
+  .blog-comment-form__submit:hover,
+  .blog-comments .blog-comment-form__submit:hover {
+    background-color: var(--ss-btn-bg-hover) !important;
+    border-color: var(--ss-btn-border-hover) !important;
+    color: var(--ss-btn-color) !important;
+  }
+
+  .blog-comments__list-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .blog-comments__list {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+  }
+
+  .blog-comments__pager {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+  }
+
+  .blog-comments .logged-in-as {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .blog-comments .logged-in-as a {
+    color: #111827;
+    font-weight: 600;
+  }
+
+  .blog-prose h2,
+  .blog-prose h3 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+
+  /* Contact page FAQ accordion / FAQ акордеон на сторінці контактів */
+  .contact-faq__trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .contact-faq__trigger::marker {
+    content: '';
+  }
+
+  /* Blog archive — sidebar, tags, pagination */
+  /* Архів блогу — sidebar, теги, пагінація */
+  .blog-sidebar__heading {
+    color: #111827;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .blog-sidebar__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .blog-sidebar__link {
+    color: #4b5563;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    text-decoration: none;
+    transition: color 100ms linear;
+  }
+
+  .blog-sidebar__link:hover {
+    color: #111827;
+  }
+
+  .blog-sidebar__tags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .blog-sidebar__tag {
+    background-color: #111827;
+    color: #fff;
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    padding: 0.375rem 0.625rem;
+    text-decoration: none;
+    transition: background-color 100ms linear;
+  }
+
+  .blog-sidebar__tag:hover {
+    background-color: #374151;
+    color: #fff;
+  }
+
+  .blog-pagination .page-numbers {
+    align-items: center;
+    color: #4b5563;
+    display: inline-flex;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    height: 2rem;
+    justify-content: center;
+    margin-right: 0.25rem;
+    min-width: 2rem;
+    text-decoration: none;
+    transition: color 100ms linear;
+  }
+
+  .blog-pagination .page-numbers:hover,
+  .blog-pagination .page-numbers:focus {
+    color: #111827;
+  }
+
+  .blog-pagination .page-numbers.current {
+    color: #111827;
+    font-weight: 700;
+  }
+
+  .blog-pagination ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .blog-pagination li {
+    margin: 0;
+  }
+}
+
+@layer utilities {
+  /* Fluid section spacing: 45px @ 480px → 112px @ 1440px */
+  /* Резинові відступи секцій: 45px @ 480px → 112px @ 1440px */
+  .py-section {
+    padding-top: clamp(45px, 11.5px + 6.98vw, 112px);
+    padding-bottom: clamp(45px, 11.5px + 6.98vw, 112px);
+  }
+
+  .pt-section {
+    padding-top: clamp(45px, 11.5px + 6.98vw, 112px);
+  }
+
+  .pb-section {
+    padding-bottom: clamp(45px, 11.5px + 6.98vw, 112px);
+  }
 }

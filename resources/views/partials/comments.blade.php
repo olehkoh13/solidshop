@@ -1,17 +1,17 @@
 @if (! post_password_required())
-  <section id="comments" class="comments">
+  <section id="comments" class="comments blog-comments">
     @if ($responses())
-      <h2>
+      <h2 class="blog-comments__list-title">
         {!! $title !!}
       </h2>
 
-      <ol class="comment-list">
+      <ol class="comment-list blog-comments__list">
         {!! $responses !!}
       </ol>
 
       @if ($paginated())
-        <nav aria-label="Comment">
-          <ul class="pager">
+        <nav aria-label="{{ __('Коментарі', 'solidshop') }}">
+          <ul class="blog-comments__pager">
             @if ($previous())
               <li class="previous">
                 {!! $previous !!}

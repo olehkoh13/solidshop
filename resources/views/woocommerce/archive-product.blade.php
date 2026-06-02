@@ -10,7 +10,7 @@
   <div class="w-full font-sans antialiased">
   {{-- Внутрішній шар: обмеження 1440px, адаптивні відступи / Inner layer: 1440px cap, responsive padding --}}
   {{-- Лівий край логотипу в шапці збігається з лівим краєм сайдбару / Logo left edge aligns with sidebar left edge --}}
-  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-section">
 
     {{-- Головний заголовок каталогу / Main catalog heading --}}
     <header class="mb-6">
@@ -112,17 +112,7 @@
               $chosen_colors = request()->get('f_color', []);
               if (!is_array($chosen_colors)) { $chosen_colors = explode(',', $chosen_colors); }
               // Мапа slug → HEX для поширених кольорів / Slug → HEX map for common colors
-              $color_map = [
-                'black'     => '#111111', 'white'     => '#f5f5f5',
-                'red'       => '#ef4444', 'blue'      => '#3b82f6',
-                'grey'      => '#9ca3af', 'gray'      => '#9ca3af',
-                'beige'     => '#e8d4b4', 'green'     => '#22c55e',
-                'yellow'    => '#eab308', 'pink'      => '#f472b6',
-                'orange'    => '#f97316', 'purple'    => '#a855f7',
-                'navy'      => '#1e3a5f', 'brown'     => '#92400e',
-                'gold'      => '#d97706', 'silver'    => '#cbd5e1',
-                'turquoise' => '#2dd4bf', 'violet'    => '#7c3aed',
-              ];
+              $color_map = \App\solidshop_color_hex_map();
               // Темні свотчі: галочка біла / Dark swatches: white checkmark
               $dark_swatches = ['black', 'navy', 'blue', 'purple', 'brown', 'violet'];
 
@@ -314,7 +304,7 @@
                            class="w-1/2 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500">
                   </div>
                   <button type="submit"
-                          class="w-full bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold py-2 rounded-lg transition-colors uppercase tracking-wider">
+                          class="ss-btn w-full text-xs py-2 uppercase tracking-wider">
                     Застосувати ціну
                   </button>
                 </div>
@@ -365,59 +355,12 @@
           </div>
 
           {{-- СІТКА / СПИСОК ТОВАРІВ / PRODUCT GRID / LIST --}}
-          <div class="{{ $view_mode === 'list' ? 'space-y-4' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6' }}">
+          <div class="solidshop-catalog-grid {{ $view_mode === 'list' ? 'space-y-4' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6' }}">
             @while(have_posts()) @php the_post(); global $product; @endphp
-
-              @if($view_mode === 'list')
-                {{-- ВИГЛЯД СПИСКОМ / LIST VIEW --}}
-                <article class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 flex flex-row p-4 gap-5 items-center group relative">
-                  <div class="w-32 h-32 bg-gray-50 rounded-lg overflow-hidden shrink-0 relative">
-                    <a href="{{ get_permalink() }}" class="block w-full h-full">
-                      {!! $product->get_image('woocommerce_thumbnail', ['class' => 'w-full h-full object-cover object-center group-hover:scale-103 transition-transform duration-300']) !!}
-                    </a>
-                  </div>
-                  <div class="flex flex-col md:flex-row justify-between items-start md:items-center flex-grow gap-4">
-                    <div>
-                      @php $product_brands = wp_get_post_terms($product->get_id(), 'product_brand'); @endphp
-                      @if(!empty($product_brands) && !is_wp_error($product_brands))
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 block mb-0.5">{{ $product_brands[0]->name }}</span>
-                      @endif
-                      <h3 class="text-base font-semibold text-gray-900 hover:text-blue-600 transition-colors">
-                        <a href="{{ get_permalink() }}">{{ $product->get_name() }}</a>
-                      </h3>
-                    </div>
-                    <div class="flex items-center gap-4 shrink-0 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-gray-50 pt-2 md:pt-0">
-                      <span class="text-lg font-black text-gray-950 whitespace-nowrap">{!! $product->get_price_html() !!}</span>
-                      <div class="product-loop-action-btn select-none">@php woocommerce_template_loop_add_to_cart() @endphp</div>
-                    </div>
-                  </div>
-                </article>
-              @else
-                {{-- ВИГЛЯД СІТКОЮ / GRID VIEW --}}
-                <article class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col h-full group relative">
-                  <div class="relative aspect-square bg-gray-50 overflow-hidden">
-                    <a href="{{ get_permalink() }}" class="block w-full h-full">
-                      {!! $product->get_image('woocommerce_thumbnail', ['class' => 'w-full h-full object-cover object-center group-hover:scale-103 transition-transform duration-300']) !!}
-                    </a>
-                  </div>
-                  <div class="p-4 flex flex-col justify-between flex-grow">
-                    <div>
-                      @php $product_brands = wp_get_post_terms($product->get_id(), 'product_brand'); @endphp
-                      @if(!empty($product_brands) && !is_wp_error($product_brands))
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-blue-600 block mb-1">{{ $product_brands[0]->name }}</span>
-                      @endif
-                      <h3 class="text-sm font-semibold text-gray-900 mb-1.5 line-clamp-2">
-                        <a href="{{ get_permalink() }}" class="hover:text-blue-600 transition-colors">{{ $product->get_name() }}</a>
-                      </h3>
-                    </div>
-                    <div class="mt-4 flex items-center justify-between gap-2 border-t border-gray-50 pt-3">
-                      <span class="text-base font-black text-gray-950 leading-tight">{!! $product->get_price_html() !!}</span>
-                      <div class="product-loop-action-btn">@php woocommerce_template_loop_add_to_cart() @endphp</div>
-                    </div>
-                  </div>
-                </article>
-              @endif
-
+              @include('partials.product-card-catalog', [
+                'product' => $product,
+                'layout'  => $view_mode === 'list' ? 'list' : 'grid',
+              ])
             @endwhile
           </div>
 
@@ -430,7 +373,7 @@
 
               if (!empty($pagination_html)) {
                   $pagination_html = preg_replace('/<nav class="woocommerce-pagination"[^>]*>/i', '<nav class="flex items-center gap-2" aria-label="Пагінація товару">', $pagination_html);
-                  $pagination_html = preg_replace('/<span[^>]*class="[^"]*current[^"]*"[^>]*>(.*?)<\/span>/i', '<span class="inline-flex items-center justify-center min-w-10 h-10 px-3 text-sm font-bold rounded-lg bg-blue-600 text-white border border-blue-600 shadow-sm select-none">$1</span>', $pagination_html);
+                  $pagination_html = preg_replace('/<span[^>]*class="[^"]*current[^"]*"[^>]*>(.*?)<\/span>/i', '<span class="inline-flex items-center justify-center min-w-10 h-10 px-3 text-sm font-bold bg-black text-white border border-black shadow-sm select-none">$1</span>', $pagination_html);
                   $pagination_html = preg_replace('/<a[^>]*class="[^"]*page-numbers[^"]*"[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/i', '<a href="$1" class="inline-flex items-center justify-center min-w-10 h-10 px-3 text-sm font-semibold rounded-lg border border-gray-200 text-gray-700 bg-white hover:border-blue-600 hover:text-blue-600 hover:shadow-sm transition-all duration-200">$2</a>', $pagination_html);
                   $pagination_html = preg_replace('/<span[^>]*class="[^"]*dots[^"]*"[^>]*>(.*?)<\/span>/i', '<span class="inline-flex items-center justify-center w-10 h-10 text-gray-400 font-medium select-none">$1</span>', $pagination_html);
                   $pagination_html = str_replace(["<ul class='page-numbers'>", "</ul>", "<li>", "</li>"], "", $pagination_html);
@@ -445,7 +388,7 @@
             <h3 class="text-base font-bold text-gray-900 mb-1">Товарів не знайдено</h3>
             <p class="text-sm text-gray-500 mb-4">Жоден товар не відповідає заданим критеріям.</p>
             <a href="@php echo esc_url(get_permalink(wc_get_page_id('shop'))); @endphp"
-               class="inline-flex bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">
+               class="ss-btn inline-flex text-sm font-semibold px-5 py-2.5">
               Скинути фільтри
             </a>
           </div>

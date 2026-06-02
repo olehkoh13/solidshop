@@ -2,9 +2,8 @@
   {{ get_the_date() }}
 </time>
 
-<p>
-  <span>{{ __('By', 'sage') }}</span>
-  <a href="{{ get_author_posts_url(get_the_author_meta('ID')) }}" class="p-author h-card">
-    {{ get_the_author() }}
-  </a>
-</p>
+<span class="mx-1" aria-hidden="true">·</span>
+
+<span>
+  {{ get_the_author() }}
+</span>

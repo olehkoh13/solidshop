@@ -1,5 +1,5 @@
 <footer class="bg-gray-950 text-gray-400 mt-auto border-t border-gray-900">
-  <div class="container mx-auto px-4 py-12 md:py-16">
+  <div class="container mx-auto px-4 py-section">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
 
       {{-- Блок бренду --}}

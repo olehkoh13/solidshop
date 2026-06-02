@@ -27,7 +27,7 @@
       {{-- Hidden on mobile/tablet so the w-[800px] dropdown cannot cause horizontal overflow         --}}
       <div class="relative id-mega-menu-wrapper hidden lg:block">
         <button id="mega-menu-trigger"
-                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors shadow-sm focus:outline-none">
+                class="ss-btn flex items-center gap-2 px-5 py-2.5 font-semibold text-sm shadow-sm focus:outline-none">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
@@ -132,6 +132,13 @@
       </div>{{-- /id-mega-menu-wrapper --}}
     </div>{{-- /LEFT --}}
 
+    {{-- Центральна колонка: live-пошук (десктоп) / Center column: live search (desktop) --}}
+    @if (class_exists('WooCommerce'))
+      <div class="hidden lg:flex flex-1 max-w-md xl:max-w-xl mx-4 min-w-0">
+        @include('partials.live-search', ['uid' => 'desktop', 'variant' => 'inline'])
+      </div>
+    @endif
+
     {{-- ================================================= --}}
     {{-- ПРАВА ЧАСТИНА: Навігація + Кошик + Мобільне меню  --}}
     {{-- RIGHT: Nav links + Cart + Mobile hamburger         --}}
@@ -148,17 +155,20 @@
       {{-- Роздільник: тільки десктоп / Separator: desktop only --}}
       <span class="hidden lg:block h-6 w-px bg-gray-200"></span>
 
-      {{-- Кошик WooCommerce (завжди видимий) / WooCommerce cart (always visible) --}}
+      {{-- Акаунт + wishlist + кошик / Account + wishlist + cart --}}
+      @include('partials.header')
+
       @if (class_exists('WooCommerce'))
-        <a href="{{ wc_get_cart_url() }}"
-           class="relative p-2 text-gray-700 hover:text-blue-600 transition-colors select-none">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+        {{-- Мобільний пошук: іконка відкриває fullscreen modal / Mobile search icon --}}
+        <button type="button"
+                class="js-live-search-open lg:hidden flex items-center justify-center p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors rounded-none"
+                aria-label="{{ __('Відкрити пошук', 'solidshop') }}"
+                aria-controls="mobile-live-search-modal"
+                aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
-          <span class="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center transform translate-x-1 -translate-y-1">
-            {{ WC()->cart->get_cart_contents_count() }}
-          </span>
-        </a>
+        </button>
       @endif
 
       {{-- Кнопка гамбургер: тільки мобільні/планшети / Hamburger button: mobile/tablet only --}}
@@ -205,7 +215,7 @@
 
       {{-- Посилання на Каталог / Link to the shop/catalog --}}
       <a href="@php echo esc_url(get_permalink(wc_get_page_id('shop'))); @endphp"
-         class="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-colors">
+         class="ss-btn flex items-center gap-3 px-4 py-3 font-semibold text-sm">
         <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
@@ -228,16 +238,36 @@
         </a>
       </div>
 
-      {{-- Посилання на кошик / Link to cart --}}
+      {{-- Акаунт + кошик (мобільне меню) / Account + cart (mobile nav) --}}
       @if (class_exists('WooCommerce'))
-        <div class="pt-2 border-t border-gray-100 mt-2">
+        <div class="pt-2 border-t border-gray-100 mt-2 space-y-1">
+          <a href="{{ esc_url(wc_get_page_permalink('myaccount')) }}"
+             class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 shrink-0" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+            {{ __('Особистий кабінет', 'solidshop') }}
+          </a>
+          <a href="{{ esc_url(\App\solidshop_get_wishlist_page_url()) }}"
+             class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 shrink-0" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            {{ __('Вподобані товари', 'solidshop') }}
+            @php $mobile_wishlist_count = count(\App\solidshop_get_wishlist()); @endphp
+            @if ($mobile_wishlist_count > 0)
+              <span class="ml-auto solidshop-header-badge solidshop-wishlist-count text-white text-[10px] font-bold min-w-5 h-5 px-1 rounded-full flex items-center justify-center">{{ $mobile_wishlist_count }}</span>
+            @else
+              <span class="ml-auto solidshop-wishlist-count hidden">0</span>
+            @endif
+          </a>
           <a href="{{ wc_get_cart_url() }}"
              class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
             </svg>
             Кошик
-            <span class="ml-auto bg-blue-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+            <span class="ml-auto solidshop-header-badge text-white text-[10px] font-bold min-w-5 h-5 px-1 rounded-full flex items-center justify-center">
               {{ class_exists('WooCommerce') ? WC()->cart->get_cart_contents_count() : '0' }}
             </span>
           </a>
@@ -272,6 +302,112 @@
       drawer.classList.add('-translate-x-full');
       document.body.classList.remove('overflow-hidden');
     }
+
+    /**
+     * Відкриває або закриває drawer міні-кошика та керує оверлеєм і скролом.
+     * Opens or closes the mini-cart drawer; manages overlay and body scroll lock.
+     *
+     * Функція оголошена глобально, щоб її міг викликати AJAX-обробник
+     * у single-product.blade.php та будь-яка інша сторінка.
+     * Declared globally so the AJAX handler in single-product.blade.php
+     * and any other page can call it via window.toggleMiniCart(true/false).
+     *
+     * @param {boolean} open - true = відкрити / open, false = закрити / close
+     */
+    function toggleMiniCart(open) {
+      var drawer  = document.getElementById('mini-cart-drawer');
+      var overlay = document.getElementById('mini-cart-overlay');
+      if (!drawer || !overlay) { return; }
+
+      if (open) {
+        /* Показуємо оверлей, потім висуваємо drawer у наступному кадрі,
+           щоб CSS transition встиг спрацювати (не можна transition з display:none).
+           Show overlay first, then slide in the drawer on next animation frame
+           so the CSS transition has a painted base to transition from. */
+        overlay.classList.remove('hidden');
+        requestAnimationFrame(function () {
+          drawer.classList.remove('translate-x-full');
+          drawer.classList.add('translate-x-0');
+        });
+        document.body.classList.add('overflow-hidden');
+      } else {
+        /* Ховаємо drawer та оверлей / Slide out drawer and hide overlay. */
+        drawer.classList.remove('translate-x-0');
+        drawer.classList.add('translate-x-full');
+        overlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+    window.toggleMiniCart = toggleMiniCart;
   </script>
+
+  {{-- ════════════════════════════════════════════════════════════════════
+       DRAWER МІНІ-КОШИКА (фіксований, права сторона, 420px)
+       MINI-CART DRAWER (fixed, right side, 420px)
+
+       Вміст: div.widget_shopping_cart_content оновлюється автоматично
+       через WooCommerce fragments після кожного AJAX-запиту add_to_cart.
+       Content: div.widget_shopping_cart_content auto-refreshes via
+       WooCommerce fragments after every AJAX add_to_cart request.
+
+       Значок лічильника span.solidshop-cart-count у кнопці вище
+       також оновлюється через fragments (фільтр у app/setup.php).
+       The span.solidshop-cart-count badge on the button above is also
+       refreshed via fragments (filter registered in app/setup.php).
+       ════════════════════════════════════════════════════════════════════ --}}
+  @if (class_exists('WooCommerce'))
+
+    @include('partials.live-search-mobile-modal')
+
+    {{-- Mini-cart AJAX config (available before footer scripts) / Конфіг AJAX міні-кошика --}}
+    @php
+      $mini_cart_js = [
+          'ajaxUrl'      => \WC_AJAX::get_endpoint('solidshop_update_mini_cart_qty'),
+          'addToCartUrl' => \WC_AJAX::get_endpoint('add_to_cart'),
+          'nonce'        => wp_create_nonce('solidshop_mini_cart'),
+      ];
+    @endphp
+    <script>
+      window.solidshopMiniCart = Object.assign(@json($mini_cart_js), window.solidshopMiniCart || {});
+    </script>
+
+    {{-- Напівпрозорий оверлей (клік → закриває drawer) / Semi-transparent backdrop --}}
+    <div id="mini-cart-overlay"
+         class="hidden fixed inset-0 z-40 bg-gray-900/50"
+         onclick="toggleMiniCart(false)"
+         aria-hidden="true"></div>
+
+    {{-- Основна панель drawer / Main drawer panel --}}
+    <div id="mini-cart-drawer"
+         role="dialog"
+         aria-modal="true"
+         aria-label="Кошик"
+         aria-labelledby="mini-cart-heading"
+         class="fixed top-0 right-0 h-full w-full max-w-[420px] bg-white z-50 shadow-2xl
+                translate-x-full transition-transform duration-300 flex flex-col">
+
+      {{-- ── Шапка drawer / Drawer header ─────────────────────────────── --}}
+      <div class="mini-cart__header shrink-0">
+        <h2 id="mini-cart-heading" class="mini-cart__title">{{ __('Ваш кошик', 'solidshop') }}</h2>
+        <button type="button"
+                onclick="toggleMiniCart(false)"
+                class="mini-cart__close"
+                aria-label="{{ __('Закрити кошик', 'solidshop') }}">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      {{-- ── Вміст кошика / Cart contents (WC fragments) ───────────────── --}}
+      <div class="flex-1 min-h-0 flex flex-col">
+        <div class="widget_shopping_cart_content mini-cart-root flex flex-col flex-1 min-h-0">
+          @php woocommerce_mini_cart(); @endphp
+        </div>
+      </div>
+
+    </div>{{-- /mini-cart-drawer --}}
+
+  @endif{{-- /class_exists('WooCommerce') --}}
 
 </header>

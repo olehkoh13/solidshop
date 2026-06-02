@@ -41,8 +41,18 @@
         </div>
       </main>
 
+      {{-- Смуга довіри — завжди над футером на всіх сторінках / Trust bar above footer site-wide --}}
+      <div class="site-trust-bar bg-gray-50 border-t border-gray-200 mt-auto">
+        <div class="container mx-auto max-w-7xl px-4">
+          @include('partials.product-trust-bar')
+        </div>
+      </div>
+
       {{-- Наш новий широкий преміальний футер --}}
       @include('sections.footer')
+
+      {{-- Quick Buy modal — site-wide shell / Модалка Quick Buy — глобальна оболонка --}}
+      @include('partials.quick-buy-modal')
 
     </div>
 
