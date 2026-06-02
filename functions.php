@@ -57,7 +57,7 @@ Application::configure()
 
 // Ідеальна інтеграція: просто додаємо 'woocommerce' у рідний масив Sage 11
 // Нам не потрібні сторонні цикли foreach, які дублюють завантаження
-collect(['setup', 'filters', 'brands', 'woocommerce', 'wayforpay', 'wishlist', 'search', 'contact-ajax', 'pages', 'acf-fields'])
+collect(['setup', 'filters', 'brands', 'woocommerce', 'wayforpay', 'wishlist', 'search', 'contact-ajax', 'pages', 'acf-fields', 'seo'])
     ->each(function ($file) {
         if (! locate_template($file = "app/{$file}.php", true, true)) {
             wp_die(
