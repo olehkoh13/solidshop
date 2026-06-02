@@ -27,6 +27,7 @@ const SOLIDSHOP_TRACKING_SETTINGS_GROUP = 'solidshop_tracking';
 function solidshop_tracking_option_keys(): array
 {
     return [
+        'ss_gtm_id',
         'ss_fb_pixel_id',
         'ss_fb_capi_token',
         'ss_ga4_measurement_id',
@@ -53,7 +54,23 @@ add_action('admin_menu', function (): void {
  * Реєстрація settings, sections та fields.
  */
 add_action('admin_init', function (): void {
+    register_setting(
+        SOLIDSHOP_TRACKING_SETTINGS_GROUP,
+        'ss_gtm_id',
+        [
+            'type'              => 'string',
+            'sanitize_callback' => static function (mixed $value): string {
+                return \App\Tracking\GoogleTagManager::sanitizeContainerId(is_string($value) ? $value : '');
+            },
+            'default'           => '',
+        ]
+    );
+
     foreach (solidshop_tracking_option_keys() as $option) {
+        if ($option === 'ss_gtm_id') {
+            continue;
+        }
+
         register_setting(
             SOLIDSHOP_TRACKING_SETTINGS_GROUP,
             $option,
@@ -64,6 +81,26 @@ add_action('admin_init', function (): void {
             ]
         );
     }
+
+    add_settings_section(
+        'solidshop_tracking_gtm',
+        __('Google Tag Manager', 'solidshop'),
+        '__return_false',
+        'solidshop-tracking'
+    );
+
+    add_settings_field(
+        'ss_gtm_id',
+        __('GTM Container ID', 'solidshop'),
+        __NAMESPACE__ . '\\solidshop_tracking_field_callback',
+        'solidshop-tracking',
+        'solidshop_tracking_gtm',
+        [
+            'option'      => 'ss_gtm_id',
+            'type'        => 'text',
+            'placeholder' => 'GTM-XXXXXXX',
+        ]
+    );
 
     add_settings_section(
         'solidshop_tracking_facebook',
@@ -120,19 +157,21 @@ add_action('admin_init', function (): void {
  * Render a settings field input.
  * Рендер поля налаштувань.
  *
- * @param array{option: string, type: string} $args
+ * @param array{option: string, type: string, placeholder?: string} $args
  */
 function solidshop_tracking_field_callback(array $args): void
 {
     $option = $args['option'] ?? '';
     $type = $args['type'] ?? 'text';
     $value = esc_attr((string) get_option($option, ''));
+    $placeholder = isset($args['placeholder']) ? esc_attr((string) $args['placeholder']) : '';
 
     printf(
-        '<input type="%1$s" id="%2$s" name="%2$s" value="%3$s" class="regular-text" autocomplete="off" />',
+        '<input type="%1$s" id="%2$s" name="%2$s" value="%3$s" class="regular-text" autocomplete="off" placeholder="%4$s" />',
         esc_attr($type),
         esc_attr($option),
-        $value
+        $value,
+        $placeholder
     );
 }
 
@@ -148,8 +187,8 @@ function solidshop_render_tracking_settings_page(): void
     ?>
     <div class="wrap">
         <h1><?php echo esc_html__('SolidShop Tracking', 'solidshop'); ?></h1>
-        <p><?php echo esc_html__('Server-side Facebook CAPI and GA4 Measurement Protocol. No third-party tracking plugins required.', 'solidshop'); ?></p>
-        <p><em><?php echo esc_html__('Серверний Facebook CAPI та GA4 Measurement Protocol. Сторонні плагіни трекінгу не потрібні.', 'solidshop'); ?></em></p>
+        <p><?php echo esc_html__('GTM container, server-side Facebook CAPI, and GA4 Measurement Protocol. No third-party tracking plugins required.', 'solidshop'); ?></p>
+        <p><em><?php echo esc_html__('Контейнер GTM, серверний Facebook CAPI та GA4 Measurement Protocol. Сторонні плагіни трекінгу не потрібні.', 'solidshop'); ?></em></p>
         <form action="options.php" method="post">
             <?php
             settings_fields(SOLIDSHOP_TRACKING_SETTINGS_GROUP);

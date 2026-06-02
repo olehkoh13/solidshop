@@ -830,6 +830,7 @@ add_action('after_setup_theme', function (): void {
         return;
     }
 
+    (new \App\Tracking\GoogleTagManager())->register();
     (new \App\Tracking\FacebookCAPI())->register();
     (new \App\Tracking\GoogleAnalytics())->register();
 }, 20);
