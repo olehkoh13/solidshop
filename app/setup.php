@@ -820,3 +820,16 @@ add_filter('woocommerce_output_related_products_args', function (array $args): a
 
     return $args;
 });
+
+/**
+ * Server-side tracking: Facebook CAPI + GA4 (DataLayer + Measurement Protocol).
+ * Серверний трекінг: Facebook CAPI + GA4 (DataLayer + Measurement Protocol).
+ */
+add_action('after_setup_theme', function (): void {
+    if (! class_exists('WooCommerce')) {
+        return;
+    }
+
+    (new \App\Tracking\FacebookCAPI())->register();
+    (new \App\Tracking\GoogleAnalytics())->register();
+}, 20);
