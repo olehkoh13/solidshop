@@ -412,6 +412,59 @@ add_filter('woocommerce_add_to_cart_fragments', function (array $fragments): arr
 });
 
 /**
+ * Ukrainian plural form for the word "товар" by quantity.
+ * Українська форма множини слова "товар" за кількістю.
+ *
+ * 1, 21, 31 ... -> "товар"; 2-4, 22-24 ... -> "товари"; решта -> "товарів".
+ * 1, 21, 31 ... -> "tovar"; 2-4, 22-24 ... -> "tovary"; otherwise "tovariv".
+ */
+function solidshop_cart_items_label(int $count): string
+{
+    $mod10  = $count % 10;
+    $mod100 = $count % 100;
+
+    if (1 === $mod10 && 11 !== $mod100) {
+        return __('товар', 'solidshop');
+    }
+
+    if ($mod10 >= 2 && $mod10 <= 4 && ($mod100 < 12 || $mod100 > 14)) {
+        return __('товари', 'solidshop');
+    }
+
+    return __('товарів', 'solidshop');
+}
+
+/**
+ * Fragments for the floating cart bar: live quantity and total sum.
+ * Fragments для плаваючого банера кошика: жива кількість і загальна сума.
+ *
+ * The data-count attribute lets JS read the numeric quantity reliably
+ * after each refresh (text content also contains the plural word).
+ * Атрибут data-count дозволяє JS надійно зчитати числову кількість
+ * після кожного оновлення (текст також містить відмінене слово).
+ */
+add_filter('woocommerce_add_to_cart_fragments', function (array $fragments): array {
+    if (!function_exists('WC') || !WC()->cart) {
+        return $fragments;
+    }
+
+    $count = (int) WC()->cart->get_cart_contents_count();
+
+    $fragments['span.js-floating-cart-count'] = sprintf(
+        '<span class="js-floating-cart-count font-medium" data-count="%1$d">%1$d %2$s</span>',
+        $count,
+        esc_html(solidshop_cart_items_label($count))
+    );
+
+    $fragments['span.js-floating-cart-total'] = sprintf(
+        '<span class="js-floating-cart-total font-bold whitespace-nowrap">%s</span>',
+        WC()->cart->get_cart_total()
+    );
+
+    return $fragments;
+});
+
+/**
  * Mini-cart drawer: ensure cart fragments script + AJAX config.
  * Drawer міні-кошика: wc-cart-fragments і конфіг AJAX.
  */

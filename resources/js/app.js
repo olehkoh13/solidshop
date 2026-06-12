@@ -24,7 +24,131 @@ document.addEventListener('DOMContentLoaded', () => {
   initProductCarousels();
   initContactForm();
   initContactFaq();
+  initFloatingCartBar();
 });
+
+/**
+ * Плаваючий нижній банер кошика.
+ * Floating sticky cart bar at the bottom of the screen.
+ *
+ * Логіка / Logic:
+ *   - Якщо кошик не порожній (data-cart-count > 0) і банер не закритий
+ *     у цій сесії, він видимий одразу після завантаження сторінки.
+ *   - If the cart is not empty (data-cart-count > 0) and the bar was not
+ *     closed in this session, it is visible immediately on page load.
+ *   - При скролі ВНИЗ банер видимий, при скролі ВГОРУ плавно з'їжджає
+ *     донизу і зникає.
+ *   - On scroll DOWN the bar stays visible; on scroll UP it smoothly
+ *     slides down and disappears.
+ *   - Кнопка X закриває банер до кінця сесії (sessionStorage).
+ *   - The X button hides the bar for the session (sessionStorage).
+ *   - Кількість і сума оновлюються через WooCommerce fragments.
+ *   - Quantity and total refresh via WooCommerce fragments.
+ */
+function initFloatingCartBar() {
+  const bar = document.getElementById('floating-cart-bar');
+  if (!bar) {
+    return;
+  }
+
+  const STORAGE_KEY = 'ss_floating_cart_closed';
+  const HIDDEN_CLASSES = ['translate-y-[150%]', 'opacity-0', 'pointer-events-none'];
+
+  // Примусово закритий у цій сесії - прибираємо вузол повністю.
+  // Force-closed in this session - remove the node entirely.
+  if (sessionStorage.getItem(STORAGE_KEY) === '1') {
+    bar.remove();
+    return;
+  }
+
+  let lastScrollTop = window.scrollY || 0;
+  let visible = false;
+  let ticking = false;
+
+  const cartHasItems = () => parseInt(bar.dataset.cartCount || '0', 10) > 0;
+
+  const showBar = () => {
+    if (visible) { return; }
+    visible = true;
+    bar.classList.remove(...HIDDEN_CLASSES);
+  };
+
+  const hideBar = () => {
+    if (!visible) { return; }
+    visible = false;
+    bar.classList.add(...HIDDEN_CLASSES);
+  };
+
+  // Початкова видимість: показуємо одразу, якщо в кошику є товари.
+  // Initial visibility: show immediately when the cart has items.
+  if (cartHasItems()) {
+    showBar();
+  }
+
+  /**
+   * Керує видимістю за напрямком скролу: вниз - показати, вгору - сховати.
+   * Toggles visibility by scroll direction: down - show, up - hide.
+   */
+  const onScroll = () => {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+    if (scrollTop > lastScrollTop && cartHasItems()) {
+      showBar();
+    } else if (scrollTop < lastScrollTop) {
+      hideBar();
+    }
+
+    lastScrollTop = Math.max(scrollTop, 0);
+  };
+
+  // requestAnimationFrame-тротлінг для плавних 60fps.
+  // requestAnimationFrame throttling for smooth 60fps.
+  window.addEventListener('scroll', () => {
+    if (ticking) { return; }
+    ticking = true;
+    window.requestAnimationFrame(() => {
+      onScroll();
+      ticking = false;
+    });
+  }, { passive: true });
+
+  // Примусове закриття банера на поточну сесію.
+  // Force close the bar for the current browser session.
+  const closeBtn = bar.querySelector('.js-floating-cart-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      sessionStorage.setItem(STORAGE_KEY, '1');
+      hideBar();
+      // Видаляємо вузол після завершення анімації приховування.
+      // Remove the node once the hide transition has finished.
+      window.setTimeout(() => bar.remove(), 350);
+    });
+  }
+
+  /**
+   * Синхронізує data-cart-count після оновлення fragments.
+   * Порожній кошик - ховаємо банер, з'явились товари - показуємо.
+   * Syncs data-cart-count after a fragments refresh.
+   * Empty cart - hide the bar, items appeared - show it.
+   */
+  const syncCartCount = () => {
+    const countSpan = bar.querySelector('.js-floating-cart-count');
+    if (countSpan && countSpan.dataset.count !== undefined) {
+      bar.dataset.cartCount = countSpan.dataset.count;
+    }
+    if (cartHasItems()) {
+      showBar();
+    } else {
+      hideBar();
+    }
+  };
+
+  // Слухаємо події WooCommerce через jQuery (як у initMiniCart).
+  // Listen to WooCommerce events via jQuery (same pattern as initMiniCart).
+  if (window.jQuery) {
+    window.jQuery(document.body).on('added_to_cart wc_fragments_refreshed removed_from_cart updated_wc_div', syncCartCount);
+  }
+}
 
 /**
  * Прибирає ціну з label карток доставки після AJAX WC Ukraine Shipping.
@@ -66,108 +190,141 @@ function initCheckoutShipping() {
 }
 
 /**
- * Мега-меню каталогу / Catalog mega-menu.
+ * Автоматизоване мега-меню каталогу (Rozetka-style).
+ * Automated catalog mega-menu (Rozetka-style).
+ *
+ * Логіка / Logic:
+ *   - Відкривається при ховері на обгортку кнопки "Каталог",
+ *     закривається з невеликою затримкою після mouseleave.
+ *   - Opens on hover over the "Catalog" button wrapper,
+ *     closes with a small delay after mouseleave.
+ *   - Ховер на пункті лівої панелі миттєво перемикає праву панель
+ *     за атрибутом data-target.
+ *   - Hovering a left sidebar item instantly switches the right panel
+ *     matched by the data-target attribute.
+ *   - Клік по кнопці лишається toggle-фолбеком (тачскріни, клавіатура).
+ *   - Button click stays as a toggle fallback (touch screens, keyboard).
  */
 function initMegaMenu() {
   // ── Елементи мега-меню / Mega-menu elements ─────────────────────────────
+  const wrapper = document.querySelector('.id-mega-menu-wrapper');
   const trigger = document.getElementById('mega-menu-trigger');
   const dropdown = document.getElementById('mega-menu-dropdown');
 
-  // Рядки-обгортки лівої панелі (містять і <a>, і <button>)
-  // Left panel row wrappers (contain both <a> link and <button> toggle)
-  const tabItems = document.querySelectorAll('.mega-menu-tab-item');
+  // Пункти лівої панелі (посилання з data-target)
+  // Left sidebar items (links carrying data-target)
+  const catItems = document.querySelectorAll('.mega-menu-cat-item');
 
-  // Кнопки-стрілки в кожному рядку (тільки перемикають праву панель)
-  // Arrow buttons in each row (only switch the right panel content)
-  const tabTriggers = document.querySelectorAll('.mega-menu-tab-trigger');
-
-  // Контентні блоки правої панелі / Right panel content blocks
-  const tabContents = document.querySelectorAll('.mega-menu-tab-content');
+  // Контентні панелі правої зони / Right area content panels
+  const panels = document.querySelectorAll('.mega-menu-panel');
 
   if (!trigger || !dropdown) return;
 
-  // ── Допоміжна функція активації таба / Tab activation helper ───────────
+  // Класи активного пункту лівої панелі / Active sidebar item classes
+  const ACTIVE_CLASSES = ['bg-blue-50', 'text-blue-600'];
+  const INACTIVE_CLASSES = ['text-gray-700', 'hover:bg-blue-50', 'hover:text-blue-600'];
+
+  // Таймер відкладеного закриття після mouseleave.
+  // Delayed-close timer after mouseleave.
+  let closeTimer = null;
+
   /**
-   * Підсвічує рядок лівої панелі та показує відповідний контент праворуч.
-   * Highlights left panel row and shows matching right panel content.
-   * Посилання (<a>) в рядку не змінюються і навігація не блокується.
-   * The <a> link inside the row is untouched; navigation is not blocked.
+   * Активує пункт лівої панелі та показує відповідну праву панель.
+   * Activates a sidebar item and reveals the matching right panel.
+   * Навігація по <a> не блокується / Link navigation is never blocked.
    *
-   * @param {string} tabId - значення data-tab (наприклад "tab-42") / data-tab value
+   * @param {string} targetId - значення data-target (наприклад "menu-content-42") / data-target value
    */
-  function activateTab(tabId) {
-    // Скидаємо підсвічування всіх рядків / Reset highlight on all rows
-    tabItems.forEach(item => item.classList.remove('bg-blue-50'));
+  function activatePanel(targetId) {
+    // Скидаємо активний стан усіх пунктів / Reset active state on all items
+    catItems.forEach((item) => {
+      item.classList.remove(...ACTIVE_CLASSES);
+      item.classList.add(...INACTIVE_CLASSES);
+    });
 
-    // Ховаємо весь контент правої панелі / Hide all right panel blocks
-    tabContents.forEach(c => c.classList.add('hidden'));
+    // Ховаємо всі праві панелі / Hide all right panels
+    panels.forEach((panel) => {
+      panel.classList.add('hidden');
+      panel.classList.remove('flex');
+    });
 
-    // Підсвічуємо поточний рядок / Highlight current row
-    const activeItem = document.querySelector(`.mega-menu-tab-item[data-tab="${tabId}"]`);
-    if (activeItem) activeItem.classList.add('bg-blue-50');
+    // Підсвічуємо поточний пункт / Highlight the current item
+    const activeItem = document.querySelector(`.mega-menu-cat-item[data-target="${targetId}"]`);
+    if (activeItem) {
+      activeItem.classList.remove(...INACTIVE_CLASSES);
+      activeItem.classList.add(...ACTIVE_CLASSES);
+    }
 
-    // Відкриваємо відповідний блок підкатегорій / Show matching subcategory block
-    const targetContent = document.getElementById(tabId);
-    if (targetContent) targetContent.classList.remove('hidden');
+    // Показуємо відповідну панель / Show the matching panel
+    const targetPanel = document.getElementById(targetId);
+    if (targetPanel) {
+      targetPanel.classList.remove('hidden');
+      targetPanel.classList.add('flex');
+    }
   }
 
-  // ── 1. Відкриття / Закриття всього мега-меню ────────────────────────────
-  // ── 1. Open / close the whole mega-menu ─────────────────────────────────
+  /** Відкриває dropdown / Opens the dropdown. */
+  function openMenu() {
+    if (closeTimer) {
+      window.clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+    dropdown.classList.remove('hidden');
+  }
+
+  /** Закриває dropdown із затримкою / Closes the dropdown with a delay. */
+  function scheduleClose() {
+    if (closeTimer) {
+      window.clearTimeout(closeTimer);
+    }
+    closeTimer = window.setTimeout(() => {
+      dropdown.classList.add('hidden');
+      closeTimer = null;
+    }, 150);
+  }
+
+  // ── 1. Відкриття по ховеру / Open on hover ──────────────────────────────
   //
-  // trigger — це <button>, НЕ посилання, тому e.stopPropagation() безпечний.
+  // mouseenter на обгортці (кнопка + dropdown) відкриває меню;
+  // mouseleave планує закриття, повторний enter його скасовує.
+  // mouseenter on the wrapper (button + dropdown) opens the menu;
+  // mouseleave schedules the close, re-entering cancels it.
+  if (wrapper) {
+    wrapper.addEventListener('mouseenter', openMenu);
+    wrapper.addEventListener('mouseleave', scheduleClose);
+  }
+
+  // ── 2. Клік по кнопці: toggle-фолбек / Button click: toggle fallback ────
+  //
+  // trigger - це <button>, НЕ посилання, тому e.stopPropagation() безпечний.
   // trigger is a <button>, NOT a link, so e.stopPropagation() is safe here.
   trigger.addEventListener('click', (e) => {
     e.stopPropagation(); // Не дає document.click закрити меню одразу / Prevents immediate close by document.click
     dropdown.classList.toggle('hidden');
-
-    // Автоматично активуємо перший таб при першому відкритті
-    // Auto-activate first tab on first open
-    if (!dropdown.classList.contains('hidden') && tabItems.length > 0) {
-      const firstTabId = tabItems[0].getAttribute('data-tab');
-      if (firstTabId) activateTab(firstTabId);
-    }
   });
 
-  // ── 2. Ховер на рядку лівої панелі → активує таб ────────────────────────
-  // ── 2. Hover on left panel row → activates tab ──────────────────────────
+  // ── 3. Ховер на пункті лівої панелі перемикає праву панель ──────────────
+  // ── 3. Hover on a sidebar item switches the right panel ─────────────────
   //
-  // Посилання (<a>) всередині рядка лишається повністю незачепленим:
-  // The <a> link inside the row remains completely untouched:
-  // клік по ньому виконує нативну навігацію браузера.
-  // clicking it performs native browser navigation.
-  tabItems.forEach(item => {
+  // Пункт - це <a>: клік виконує нативну навігацію браузера,
+  // mouseenter лише перемикає видимість панелей.
+  // The item is an <a>: click performs native browser navigation,
+  // mouseenter only toggles panel visibility.
+  catItems.forEach((item) => {
     item.addEventListener('mouseenter', () => {
-      const tabId = item.getAttribute('data-tab');
-      if (tabId) activateTab(tabId);
+      const targetId = item.getAttribute('data-target');
+      if (targetId) activatePanel(targetId);
     });
   });
 
-  // ── 3. Клік на кнопку-стрілку → перемикає таб (без навігації) ───────────
-  // ── 3. Click on arrow button → switches tab (no navigation) ─────────────
+  // ── 4. Закриття при кліку поза межами меню / Close on outside click ─────
   //
-  // Це <button type="button">, НЕ посилання.
-  // This is <button type="button">, NOT a link.
-  // e.stopPropagation() потрібен, щоб document.click не закрив меню.
-  // e.stopPropagation() needed so document.click doesn't close the menu.
-  // e.preventDefault() тут НЕ потрібен і НЕ викликається.
-  // e.preventDefault() is NOT needed and NOT called here.
-  tabTriggers.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation(); // <button>, не <a> — безпечно / <button>, not <a> — safe
-      const tabId = btn.getAttribute('data-tab');
-      if (tabId) activateTab(tabId);
-    });
-  });
-
-  // ── 4. Закриття мега-меню при кліку поза його межами ────────────────────
-  // ── 4. Close mega-menu when clicking outside ─────────────────────────────
-  //
-  // Посилання (<a>) всередині dropdown НЕ перехоплюються цим хендлером.
-  // Links (<a>) inside dropdown are NOT intercepted by this handler.
-  // Коли користувач клікає посилання: dropdown.contains(e.target) === true,
-  // When user clicks a link: dropdown.contains(e.target) === true,
-  // тому меню НЕ закривається, і браузер виконує нативний перехід.
-  // so the menu does NOT close, and the browser performs native navigation.
+  // Посилання (<a>) всередині dropdown НЕ перехоплюються цим хендлером:
+  // dropdown.contains(e.target) === true, тому меню не закривається,
+  // і браузер виконує нативний перехід.
+  // Links (<a>) inside the dropdown are NOT intercepted by this handler:
+  // dropdown.contains(e.target) === true, so the menu stays open and
+  // the browser performs native navigation.
   document.addEventListener('click', (e) => {
     if (
       !dropdown.contains(e.target) &&
@@ -177,7 +334,6 @@ function initMegaMenu() {
       dropdown.classList.add('hidden');
     }
   });
-
 }
 
 /**

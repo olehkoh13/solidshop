@@ -54,6 +54,9 @@
       {{-- Quick Buy modal — site-wide shell / Модалка Quick Buy — глобальна оболонка --}}
       @include('partials.quick-buy-modal')
 
+      {{-- Плаваючий банер кошика / Floating sticky cart bar --}}
+      @include('partials.floating-cart-bar')
+
     </div>
 
     @php(do_action('get_footer'))
